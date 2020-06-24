@@ -7,8 +7,8 @@ set -x
 START_TIME_IMAGE_UPDATE="$(date -u +%s)"
 source "/etc/profile" &> /dev/null
 
-SEKAI_HASH=$($KIRA_SCRIPTS/git-hash.sh $SEKAI_REPO)
-SDK_HASH=$($KIRA_SCRIPTS/git-hash.sh $SDK_REPO)
+SEKAI_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SEKAI)
+SDK_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SDK)
 SEKAI_INTEGRITY="_${SEKAI_HASH}_${SDK_HASH}"
 
 echo "------------------------------------------------"
