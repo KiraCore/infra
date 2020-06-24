@@ -7,17 +7,19 @@ set -x
 START_TIME_IMAGE_UPDATE="$(date -u +%s)"
 source "/etc/profile" &> /dev/null
 
-SEKAI_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SEKAI)
-SDK_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SDK)
-SEKAI_INTEGRITY="_${SEKAI_HASH}_${SDK_HASH}"
 
 echo "------------------------------------------------"
-echo "|    STARTED: VALIDATOR IMAGE UPDATE v0.0.2    |"
+echo "|    STARTED: VALIDATOR IMAGE UPDATE v0.0.3    |"
 echo "------------------------------------------------"
 echo "| IMAGE NAME: validator"
 echo "|  IMAGE TAG: latest"
 echo "|       REPO: $SEKAI_REPO"
 echo "|     BRANCH: $SEKAI_BRANCH"
+
+SEKAI_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SEKAI)
+SDK_HASH=$($KIRA_SCRIPTS/git-hash.sh $KIRA_SDK)
+SEKAI_INTEGRITY="_${SEKAI_HASH}_${SDK_HASH}"
+
 echo "|  INTEGRITY: $SEKAI_INTEGRITY"
 echo "------------------------------------------------"
 
@@ -34,6 +36,6 @@ else
 fi
 
 echo "------------------------------------------------"
-echo "| FINISHED: VALIDATOR IMAGE UPDATE v0.0.2      |"
+echo "| FINISHED: VALIDATOR IMAGE UPDATE v0.0.3      |"
 echo "|  ELAPSED: $(($(date -u +%s)-$START_TIME_IMAGE_UPDATE)) seconds"
 echo "------------------------------------------------"
