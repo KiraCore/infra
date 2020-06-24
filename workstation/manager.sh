@@ -72,16 +72,18 @@ while : ; do
         LABEL="| [$i] | Inspect $name container                 "
         echo "${LABEL:0:46} : $status"
     done
-    echo "|----------------------------------------------|"
-    echo "| [A] | Mange INFRA Repo ($INFRA_BRANCH)"
-    echo "| [B] | Mange SEKAI Repo ($SEKAI_BRANCH)"
-    echo "|----------------------------------------------|"
-    echo "| [I] | Re-INITALIZE Environment               |"
-    echo "| [L] | Show All LOGS                          |"
     [ "$EXITED" == "False" ] && [ "$CONTAINERS_COUNT" != "0" ] && \
     echo "| [S] | STOP All Containers                    |"
     [ "$CONTAINERS_COUNT" != "0" ] && \
     echo "| [R] | Re-START All Containers                |"
+    echo "|----------------------------------------------|"
+    echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
+    echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
+    echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
+    echo "| [V] | VIEW All Repos in Code Editor          |"
+    echo "|----------------------------------------------|"
+    echo "| [I] | Re-INITALIZE Environment               |"
+    echo "| [L] | Show All LOGS in Code Editor           |"
     echo "| [H] | HARD-Reset Repos & Infrastructure      |"
     echo "| [D] | DELETE Repos & Infrastructure          |"
     echo "|----------------------------------------------|"
@@ -108,7 +110,14 @@ while : ; do
             break
         fi 
     done
-    if [ "${OPTION,,}" == "l" ] ; then
+    if [ "${OPTION,,}" == "v" ] ; then
+        echo "INFO: Starting code editor..."
+        USER_DATA_DIR="/usr/code$KIRA_REPOS"
+        rm -rf $USER_DATA_DIR
+        mkdir -p $USER_DATA_DIR
+        code --user-data-dir $USER_DATA_DIR $KIRA_REPOS
+        continue
+    elif [ "${OPTION,,}" == "l" ] ; then
         echo "INFO: Please wait, dumping logs form all $CONTAINERS_COUNT containers..."
         $KIRA_SCRIPTS/progress-touch.sh "*0" "prg-logs"
         for name in $CONTAINERS ; do
@@ -123,7 +132,7 @@ while : ; do
         rm -rf $USER_DATA_DIR
         mkdir -p $USER_DATA_DIR
         code --user-data-dir $USER_DATA_DIR $KIRA_DUMP
-        break
+        continue
     elif [ "${OPTION,,}" == "a" ] ; then
         echo "INFO: Starting git manager..."
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
@@ -132,12 +141,16 @@ while : ; do
         echo "INFO: Starting git manager..."
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
+    elif [ "${OPTION,,}" == "c" ] ; then
+        echo "INFO: Starting git manager..."
+        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SEKAI\" \"SDK_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
         $KIRA_SCRIPTS/progress-touch.sh "*0" 
         gnome-terminal --disable-factory -- script -e $KIRA_DUMP/INFRA/init.log -c "$KIRA_MANAGER/init.sh False ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit" &
         PID=$! && sleep 2 && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish then close the new terminal\e[0m"
-        $KIRA_SCRIPTS/progress-touch.sh "+0;$((61+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
+        $KIRA_SCRIPTS/progress-touch.sh "+0;$((62+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
         FAILURE="False" && wait $PID || FAILURE="True"
         [ "$FAILURE" == "False" ] && echo -e "\nSUCCESS: Infra was stopped" && break
         [ "$FAILURE" == "True" ] && echo -e "\nERROR: Init script failed, logs are available in the '$KIRA_DUMP' directory"
@@ -167,7 +180,7 @@ while : ; do
         $KIRA_SCRIPTS/progress-touch.sh "*0" 
         $KIRA_MANAGER/start.sh > "$KIRA_DUMP/INFRA/manager/start.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
-        $KIRA_SCRIPTS/progress-touch.sh "+0;$((61+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
+        $KIRA_SCRIPTS/progress-touch.sh "+0;$((62+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
         FAILURE="False" && wait $PID || FAILURE="True"
         [ "$FAILURE" == "True" ] && echo -e "\nERROR: Start script failed, logs are available in the '$KIRA_DUMP' directory" && read -d'' -s -n1 -p 'Press any key to continue...'
         [ "$FAILURE" == "False" ] && echo -e "\nSUCCESS: Infra was wiped and restarted"
