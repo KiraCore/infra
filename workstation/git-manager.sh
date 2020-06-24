@@ -102,7 +102,7 @@ while : ; do
         rm -rf $USER_DATA_DIR
         mkdir -p $USER_DATA_DIR
         code --user-data-dir $USER_DATA_DIR $DIRECTORY
-        sleep 2 && continue
+        continue
     elif [ "${OPTION,,}" == "c" ] ; then
         echo -e "\e[36;1mType desired commit message: \e[0m\c" && read COMMIT
         if [ -z "$COMMIT" ] ; then
@@ -115,7 +115,8 @@ while : ; do
         git add -A || FAILED="True"
         [ "$FAILED" == "False" ] && git commit -a -m "[$(date '+%d/%m/%Y %H:%M:%S')] $COMMIT" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Commit failed" && break
-        echo "SUCCESS: Commit suceeded" && sleep 2 && continue
+        echo "SUCCESS: Commit suceeded"
+        continue
     elif [ "${OPTION,,}" == "p" ] ; then
         echo "INFO: Pushing changes..."
         git checkout $BRANCH || FAILED="True"
@@ -128,12 +129,14 @@ while : ; do
         [ "$FAILED" == "False" ] && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin $BRANCH" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Push failed" && break
         
-        echo "SUCCESS: Push suceeded" && sleep 2 && continue
+        echo "SUCCESS: Push suceeded"
+        continue
     elif [ "${OPTION,,}" == "r" ] ; then
         $KIRA_SCRIPTS/git-pull.sh "$REPO_SSH" "$BRANCH" "$DIRECTORY" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Pull failed" && break
         
-        echo "SUCCESS: Pull suceeded" && sleep 2 && continue
+        echo "SUCCESS: Pull suceeded"
+        continue
     elif [ "${OPTION,,}" == "b" ] ; then
         echo "INFO: Listing available branches..."
         git branch -r || echo "ERROR: Failed to list remote branches"
@@ -219,5 +222,5 @@ else
     touch /tmp/rs_container_manager
 fi
 
-touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 2
+touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 3
 source $KIRA_MANAGER/git-manager.sh "$REPO_SSH" "$REPO_HTTPS" "$BRANCH" "$DIRECTORY" "$BRANCH_ENVAR"

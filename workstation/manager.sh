@@ -61,7 +61,7 @@ while : ; do
     clear
     
     echo -e "\e[33;1m------------------------------------------------"
-    echo "|         KIRA NETWORK MANAGER v0.0.4          |"
+    echo "|         KIRA NETWORK MANAGER v0.0.5          |"
     echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
     [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY       \e[33;1m|"
     [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY \e[33;1m|"
@@ -73,17 +73,18 @@ while : ; do
         echo "${LABEL:0:46} : $status"
     done
     [ "$EXITED" == "False" ] && [ "$CONTAINERS_COUNT" != "0" ] && \
-    echo "| [S] | STOP All Containers                    |"
-    [ "$CONTAINERS_COUNT" != "0" ] && \
-    echo "| [R] | Re-START All Containers                |"
+    
     echo "|----------------------------------------------|"
     echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
     echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
     echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
-    echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "|----------------------------------------------|"
-    echo "| [I] | Re-INITALIZE Environment               |"
+    echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "| [L] | Show All LOGS in Code Editor           |"
+    echo "| [S] | STOP All Containers                    |"
+    [ "$CONTAINERS_COUNT" != "0" ] && \
+    echo "| [R] | Re-START All Containers                |"
+    echo "| [I] | Re-INITALIZE Environment               |"
     echo "| [H] | HARD-Reset Repos & Infrastructure      |"
     echo "| [D] | DELETE Repos & Infrastructure          |"
     echo "|----------------------------------------------|"
