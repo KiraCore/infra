@@ -43,14 +43,12 @@ cd /kira
 UPDATED="False"
 if [ "$SKIP_UPDATE" == "False" ] ; then
     echo "INFO: Updating Infra, Sekai & SDK..."
-    $KIRA_SCRIPTS/git-pull.sh "$INFRA_REPO" "$INFRA_BRANCH" "$KIRA_INFRA" 777 &
-    $KIRA_SCRIPTS/git-pull.sh "$SEKAI_REPO" "$SEKAI_BRANCH" "$KIRA_SEKAI" &
-    wait < <(jobs -p)
-    $KIRA_SCRIPTS/progress-touch.sh "+2" #3
     $KIRA_SCRIPTS/git-pull.sh "$SDK_REPO" "$SDK_BRANCH" "$KIRA_SDK" &
+    $KIRA_SCRIPTS/git-pull.sh "$SEKAI_REPO" "$SEKAI_BRANCH" "$KIRA_SEKAI" &
+    $KIRA_SCRIPTS/git-pull.sh "$INFRA_REPO" "$INFRA_BRANCH" "$KIRA_INFRA" 777 &
     $KIRA_SCRIPTS/git-pull.sh "$DOCS_REPO" "$DOCS_BRANCH" "$KIRA_DOCS" &
     wait < <(jobs -p)
-    $KIRA_SCRIPTS/progress-touch.sh "+2" #5
+    $KIRA_SCRIPTS/progress-touch.sh "+4" #5
 
     # we must ensure that recovery files can't be destroyed in the update process and cause a deadlock
     rm -r -f $KIRA_MANAGER
