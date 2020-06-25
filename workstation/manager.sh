@@ -72,8 +72,7 @@ while : ; do
         LABEL="| [$i] | Inspect $name container                 "
         echo "${LABEL:0:46} : $status"
     done
-    [ "$EXITED" == "False" ] && [ "$CONTAINERS_COUNT" != "0" ] && \
-    
+    [ "$CONTAINERS_COUNT" != "0" ] && \
     echo "|----------------------------------------------|"
     echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
     echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
@@ -81,9 +80,13 @@ while : ; do
     echo "|----------------------------------------------|"
     echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "| [L] | Show All LOGS in Code Editor           |"
-    echo "| [S] | STOP All Containers                    |"
-    [ "$CONTAINERS_COUNT" != "0" ] && \
-    echo "| [R] | Re-START All Containers                |"
+    echo "|----------------------------------------------|"
+    if [ "$CONTAINERS_COUNT" != "0" ] ; then
+        [ "$EXITED" == "False" ] && \
+        echo "| [S] | STOP All Containers                    |"
+        echo "| [R] | Re-START All Containers                |"
+        echo "|----------------------------------------------|"
+    fi
     echo "| [I] | Re-INITALIZE Environment               |"
     echo "| [H] | HARD-Reset Repos & Infrastructure      |"
     echo "| [D] | DELETE Repos & Infrastructure          |"
