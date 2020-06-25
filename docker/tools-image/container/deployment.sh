@@ -45,6 +45,11 @@ apt-get install -y --allow-unauthenticated --allow-downgrades --allow-remove-ess
     xz-utils \
     zlib1g-dev
 
+echo "APT Intall Essential Dependencies..."
+apt-get install -y --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    expect \
+    hxtools
+
 echo "Creating GIT simlink and global setup"
 ln -s /usr/bin/git /bin/git || echo "git symlink already exists"
 

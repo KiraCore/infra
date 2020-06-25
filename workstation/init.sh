@@ -25,6 +25,7 @@ NEW_INTERACTIVE=""
 NEW_DEBUG_MODE=""
 NEW_INFRA_BRANCH=""
 NEW_SEKAI_BRANCH=""
+NEW_SDK_BRANCH=""
 NEW_NOTIFICATIONS=""
 NEW_NOTIFY_EMAIL=""
 NEW_SMTP_LOGIN=""
@@ -35,13 +36,19 @@ NEW_VALIDATORS_COUNT=""
 MAX_VALIDATORS=254
 [ -z "$INFRA_BRANCH" ] && INFRA_BRANCH="master"
 [ -z "$SEKAI_BRANCH" ] && SEKAI_BRANCH="master"
+[ -z "$SDK_BRANCH" ] && SDK_BRANCH="master"
+[ -z "$DOCS_BRANCH" ] && DOCS_BRANCH="master"
 [ -z "$EMAIL_NOTIFY" ] && EMAIL_NOTIFY="noreply.example.email@gmail.com"
 [ -z "$SMTP_LOGIN" ] && SMTP_LOGIN="noreply.example.email@gmail.com"
 [ -z "$SMTP_PASSWORD" ] && SMTP_PASSWORD="wpzpjrfsfznyeohs"
 [ -z "$INFRA_REPO" ] && INFRA_REPO="https://github.com/KiraCore/infra"
 [ -z "$SEKAI_REPO" ] && SEKAI_REPO="https://github.com/KiraCore/sekai"
+[ -z "$SDK_REPO" ] && SDK_REPO="https://github.com/KiraCore/cosmos-sdk"
+[ -z "$DOCS_REPO" ] && DOCS_REPO="https://github.com/KiraCore/docs"
 [ -z "$SEKAI_REPO_SSH" ] && SEKAI_REPO_SSH="git@github.com:KiraCore/sekai.git"
 [ -z "$INFRA_REPO_SSH" ] && INFRA_REPO_SSH="git@github.com:KiraCore/infra.git"
+[ -z "$SDK_REPO_SSH" ] && SDK_REPO_SSH="git@github.com:KiraCore/cosmos-sdk.git"
+[ -z "$DOCS_REPO_SSH" ] && DOCS_REPO_SSH="git@github.com:KiraCore/docs.git"
 [ -z "$NOTIFICATIONS" ] && NOTIFICATIONS="False"
 [ -z "$VALIDATORS_COUNT" ] && VALIDATORS_COUNT=2
 [ ! -z "$SUDO_USER" ] && KIRA_USER=$SUDO_USER
@@ -76,8 +83,11 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     # START Installing Essentials
     #########################################
     SSH_PATH=/home/root/.ssh
-    KIRA_INFRA=/kira/infra
-    KIRA_SEKAI=/kira/sekai
+    KIRA_REPOS=/kira/repos
+    KIRA_INFRA="$KIRA_REPOS/infra"
+    KIRA_SEKAI="$KIRA_REPOS/sekai"
+    KIRA_SDK="$KIRA_REPOS/sdk"
+    KIRA_DOCS="$KIRA_REPOS/docs"
     KIRA_SETUP=/kira/setup
     KIRA_MANAGER="/kira/manager"
     KIRA_PROGRESS="/kira/progress"
@@ -88,13 +98,15 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     mkdir -p $SSH_PATH
     mkdir -p $KIRA_INFRA
     mkdir -p $KIRA_SEKAI
+    mkdir -p $KIRA_SDK
+    mkdir -p $KIRA_DOCS
     mkdir -p $KIRA_SETUP
     mkdir -p $KIRA_MANAGER
     mkdir -p $KIRA_PROGRESS
     rm -rfv $KIRA_DUMP
     mkdir -p "$KIRA_DUMP/INFRA/manager"
 
-    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.2" 
+    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.6" 
     if [ ! -f "$KIRA_SETUP_ESSSENTIALS" ] ; then
         echo "INFO: Installing Essential Packages and Variables..."
         apt-get update -y > /dev/null
@@ -125,30 +137,33 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
 
         echo "INFO: Setting up Essential Variables and Configs..."
         SSHD_CONFIG="/etc/ssh/sshd_config"
-        CDHelper text lineswap --insert="PermitRootLogin yes " --prefix="PermitRootLogin" --path=$SSHD_CONFIG --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="PasswordAuthentication yes " --prefix="PasswordAuthentication" --path=$SSHD_CONFIG --append-if-found-not=True --silent=$SILENT_MODE
+        CDHelper text lineswap --insert="PermitRootLogin yes " --prefix="PermitRootLogin" --path=$SSHD_CONFIG --append-if-found-not=True
+        CDHelper text lineswap --insert="PasswordAuthentication yes " --prefix="PasswordAuthentication" --path=$SSHD_CONFIG --append-if-found-not=True
         service ssh restart || echo "WARNING: Failed to restart ssh service"
 
-        CDHelper text lineswap --insert="KIRA_MANAGER=$KIRA_MANAGER" --prefix="KIRA_MANAGER=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="KIRA_SETUP=$KIRA_SETUP" --prefix="KIRA_SETUP=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="KIRA_INFRA=$KIRA_INFRA" --prefix="KIRA_INFRA=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="KIRA_SEKAI=$KIRA_SEKAI" --prefix="KIRA_SEKAI=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="KIRA_SCRIPTS=$KIRA_SCRIPTS" --prefix="KIRA_SCRIPTS=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="KIRA_WORKSTATION=$KIRA_WORKSTATION" --prefix="KIRA_WORKSTATION=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$
-    
+        CDHelper text lineswap --insert="KIRA_MANAGER=$KIRA_MANAGER" --prefix="KIRA_MANAGER=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_REPOS=$KIRA_REPOS" --prefix="KIRA_REPOS=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_SETUP=$KIRA_SETUP" --prefix="KIRA_SETUP=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_INFRA=$KIRA_INFRA" --prefix="KIRA_INFRA=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_SEKAI=$KIRA_SEKAI" --prefix="KIRA_SEKAI=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_SDK=$KIRA_SDK" --prefix="KIRA_SDK=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_DOCS=$KIRA_DOCS" --prefix="KIRA_DOCS=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_SCRIPTS=$KIRA_SCRIPTS" --prefix="KIRA_SCRIPTS=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_WORKSTATION=$KIRA_WORKSTATION" --prefix="KIRA_WORKSTATION=" --path=$ETC_PROFILE --append-if-found-not=True
+
         SSH_KEY_PUB_PATH=$SSH_PATH/id_rsa.pub
         SSH_KEY_PRIV_PATH=$SSH_PATH/id_rsa
-        CDHelper text lineswap --insert="SSH_PATH=$SSH_PATH" --prefix="SSH_PATH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="SSH_KEY_PUB_PATH=$SSH_KEY_PUB_PATH" --prefix="SSH_KEY_PUB_PATH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-        CDHelper text lineswap --insert="SSH_KEY_PRIV_PATH=$SSH_KEY_PRIV_PATH" --prefix="SSH_KEY_PRIV_PATH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
+        CDHelper text lineswap --insert="SSH_PATH=$SSH_PATH" --prefix="SSH_PATH=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="SSH_KEY_PUB_PATH=$SSH_KEY_PUB_PATH" --prefix="SSH_KEY_PUB_PATH=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="SSH_KEY_PRIV_PATH=$SSH_KEY_PRIV_PATH" --prefix="SSH_KEY_PRIV_PATH=" --path=$ETC_PROFILE --append-if-found-not=True
     
         touch $KIRA_SETUP_ESSSENTIALS
     else
         echo "INFO: Essentials were already installed: $(git --version), Curl, Wget..."
     fi
     
-    CDHelper text lineswap --insert="SILENT_MODE=$SILENT_MODE" --prefix="SILENT_MODE=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-    CDHelper text lineswap --insert="DEBUG_MODE=$DEBUG_MODE" --prefix="DEBUG_MODE=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
+    CDHelper text lineswap --insert="SILENT_MODE=$SILENT_MODE" --prefix="SILENT_MODE=" --path=$ETC_PROFILE --append-if-found-not=True
+    CDHelper text lineswap --insert="DEBUG_MODE=$DEBUG_MODE" --prefix="DEBUG_MODE=" --path=$ETC_PROFILE --append-if-found-not=True
     #########################################
     # END Installing Essentials
     #########################################
@@ -181,6 +196,9 @@ else
 
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType SEKAI reposiotry branch, [ENTER] if '$SEKAI_BRANCH': \e[0m\c" && read NEW_SEKAI_BRANCH
     [ ! -z "$NEW_SEKAI_BRANCH" ] && SEKAI_BRANCH=$NEW_SEKAI_BRANCH
+
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Cosmos-SDK reposiotry branch, [ENTER] if '$SDK_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_SDK_BRANCH" ] && SDK_BRANCH=$NEW_SDK_BRANCH
     
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mPress [Y]es/[N]o to receive notifications, [ENTER] if '$NOTIFICATIONS': \e[0m\c" && read  -d'' -s -n1 NEW_NOTIFICATIONS
     [ "${NEW_NOTIFICATIONS,,}" == "y" ] && NOTIFICATIONS="True"
@@ -259,6 +277,7 @@ else
     echo "|         DEBUG MODE: $DEBUG_MODE"
     echo "|       INFRA BRANCH: $INFRA_BRANCH"
     echo "|       SEKAI BRANCH: $SEKAI_BRANCH"
+    echo "|         SDK BRANCH: $SDK_BRANCH"
     echo "|         INFRA REPO: $INFRA_REPO"
     echo "|         SEKAI REPO: $SEKAI_REPO"
     echo "|      NOTIFICATIONS: $NOTIFICATIONS"
@@ -274,24 +293,30 @@ else
     [ ! -z "$ACCEPT" ] && exit 1
 fi
 
-CDHelper text lineswap --insert="NOTIFICATIONS=$NOTIFICATIONS" --prefix="NOTIFICATIONS=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SMTP_LOGIN=$SMTP_LOGIN" --prefix="SMTP_LOGIN=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SMTP_PASSWORD=$SMTP_PASSWORD" --prefix="SMTP_PASSWORD=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SMTP_SECRET={\\\"host\\\":\\\"smtp.gmail.com\\\",\\\"port\\\":\\\"587\\\",\\\"ssl\\\":true,\\\"login\\\":\\\"$SMTP_LOGIN\\\",\\\"password\\\":\\\"$SMTP_PASSWORD\\\"}" --prefix="SMTP_SECRET=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
+CDHelper text lineswap --insert="NOTIFICATIONS=$NOTIFICATIONS" --prefix="NOTIFICATIONS=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SMTP_LOGIN=$SMTP_LOGIN" --prefix="SMTP_LOGIN=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SMTP_PASSWORD=$SMTP_PASSWORD" --prefix="SMTP_PASSWORD=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SMTP_SECRET={\\\"host\\\":\\\"smtp.gmail.com\\\",\\\"port\\\":\\\"587\\\",\\\"ssl\\\":true,\\\"login\\\":\\\"$SMTP_LOGIN\\\",\\\"password\\\":\\\"$SMTP_PASSWORD\\\"}" --prefix="SMTP_SECRET=" --path=$ETC_PROFILE --append-if-found-not=True
 
-CDHelper text lineswap --insert="KIRA_DUMP=$KIRA_DUMP" --prefix="KIRA_DUMP=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="KIRA_PROGRESS=$KIRA_PROGRESS" --prefix="KIRA_PROGRESS=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="KIRA_USER=$KIRA_USER" --prefix="KIRA_USER=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="USER_SHORTCUTS=/home/$KIRA_USER/.local/share/applications" --prefix="USER_SHORTCUTS=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="EMAIL_NOTIFY=$EMAIL_NOTIFY" --prefix="EMAIL_NOTIFY=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="INFRA_BRANCH=$INFRA_BRANCH" --prefix="INFRA_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SEKAI_BRANCH=$SEKAI_BRANCH" --prefix="SEKAI_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="INFRA_REPO=$INFRA_REPO" --prefix="INFRA_REPO=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SEKAI_REPO=$SEKAI_REPO" --prefix="SEKAI_REPO=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="SEKAI_REPO_SSH=$SEKAI_REPO_SSH" --prefix="SEKAI_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="INFRA_REPO_SSH=$INFRA_REPO_SSH" --prefix="INFRA_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="VALIDATORS_COUNT=$VALIDATORS_COUNT" --prefix="VALIDATORS_COUNT=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
-CDHelper text lineswap --insert="MAX_VALIDATORS=$MAX_VALIDATORS" --prefix="MAX_VALIDATORS=" --path=$ETC_PROFILE --append-if-found-not=True --silent=$SILENT_MODE
+CDHelper text lineswap --insert="KIRA_DUMP=$KIRA_DUMP" --prefix="KIRA_DUMP=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="KIRA_PROGRESS=$KIRA_PROGRESS" --prefix="KIRA_PROGRESS=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="KIRA_USER=$KIRA_USER" --prefix="KIRA_USER=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="USER_SHORTCUTS=/home/$KIRA_USER/.local/share/applications" --prefix="USER_SHORTCUTS=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="EMAIL_NOTIFY=$EMAIL_NOTIFY" --prefix="EMAIL_NOTIFY=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="INFRA_BRANCH=$INFRA_BRANCH" --prefix="INFRA_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SEKAI_BRANCH=$SEKAI_BRANCH" --prefix="SEKAI_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_BRANCH=$DOCS_BRANCH" --prefix="DOCS_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SDK_BRANCH=$SDK_BRANCH" --prefix="SDK_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="INFRA_REPO=$INFRA_REPO" --prefix="INFRA_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SEKAI_REPO=$SEKAI_REPO" --prefix="SEKAI_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SDK_REPO=$SDK_REPO" --prefix="SDK_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_REPO=$DOCS_REPO" --prefix="DOCS_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SEKAI_REPO_SSH=$SEKAI_REPO_SSH" --prefix="SEKAI_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="INFRA_REPO_SSH=$INFRA_REPO_SSH" --prefix="INFRA_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SDK_REPO_SSH=$SDK_REPO_SSH" --prefix="SDK_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_REPO_SSH=$DOCS_REPO_SSH" --prefix="DOCS_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="VALIDATORS_COUNT=$VALIDATORS_COUNT" --prefix="VALIDATORS_COUNT=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="MAX_VALIDATORS=$MAX_VALIDATORS" --prefix="MAX_VALIDATORS=" --path=$ETC_PROFILE --append-if-found-not=True
 
 chmod 777 $ETC_PROFILE
 

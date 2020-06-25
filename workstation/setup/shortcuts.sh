@@ -19,7 +19,7 @@ else
 fi
 
 KIRA_MANAGER_SCRIPT=$KIRA_MANAGER/start-manager.sh
-echo "gnome-terminal --working-directory=/kira -- script -e $KIRA_DUMP/INFRA/manager.log -c '$KIRA_MANAGER/manager.sh ; $SHELL'" > $KIRA_MANAGER_SCRIPT
+echo "gnome-terminal --geometry=80x30 --working-directory=/kira -- script -e $KIRA_DUMP/INFRA/manager.log -c '$KIRA_MANAGER/manager.sh ; $SHELL'" > $KIRA_MANAGER_SCRIPT
 chmod 777 $KIRA_MANAGER_SCRIPT
 
 KIRA_MANAGER_ENTRY="[Desktop Entry]
@@ -31,15 +31,29 @@ Exec=gksudo $KIRA_MANAGER_SCRIPT
 Categories=Application;"
 
 USER_MANAGER_FAVOURITE=$USER_SHORTCUTS/kira-manager.desktop
-
-cat > $USER_MANAGER_FAVOURITE <<< $KIRA_MANAGER_ENTRY
-
-chmod +x $USER_MANAGER_FAVOURITE
-
 USER_MANAGER_DESKTOP="/home/$KIRA_USER/Desktop/KIRA-MANAGER.desktop"
 
-cat > $USER_MANAGER_DESKTOP <<< $KIRA_MANAGER_ENTRY
+mkdir -p "/home/$KIRA_USER/Desktop"
+mkdir -p $USER_SHORTCUTS
 
-chmod +x $USER_MANAGER_DESKTOP 
+touch $USER_MANAGER_FAVOURITE
+touch $USER_MANAGER_DESKTOP
+
+SFM_CONTENT=$(cat $USER_MANAGER_FAVOURITE || echo "")
+SFD_CONTENT=$(cat $USER_MANAGER_DESKTOP || echo "")
+
+if [ -z "$SFM_CONTENT" ] || [ "$SFD_CONTENT" != "$SFM_CONTENT" ] || [ "$KIRA_MANAGER_ENTRY" != "$SFM_CONTENT" ] ; then
+    echo "INFO: Updating shortcuts..."
+    rm -f $USER_MANAGER_FAVOURITE
+    rm -f $USER_MANAGER_DESKTOP
+
+    cat > $USER_MANAGER_FAVOURITE <<< $KIRA_MANAGER_ENTRY
+    cat > $USER_MANAGER_DESKTOP <<< $KIRA_MANAGER_ENTRY
+    
+    chmod +x $USER_MANAGER_DESKTOP
+    chmod +x $USER_MANAGER_FAVOURITE
+else
+    echo "INFO: Shortcuts already exist"
+fi
 
 

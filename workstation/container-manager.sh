@@ -70,7 +70,7 @@ while : ; do
     echo "| [X] | Exit | [W] | Refresh Window            |"
     echo -e "------------------------------------------------\e[0m"
     
-    echo "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
+    echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
         [ -f $LOOP_FILE ] && OPTION=$(cat $LOOP_FILE || echo "")
         [ -f $RESTART_SIGNAL ] && break
@@ -80,8 +80,8 @@ while : ; do
         [ -z "$KEY" ] && break
     done
     OPTION=$(cat $LOOP_FILE || echo "") && [ -z "$OPTION" ] && continue
-    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -e "\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT ; done
-    echo "" && [ "${ACCEPT,,}" == "n" ] && echo "WARINIG: Operation was cancelled" && continue
+    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -en "\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT && echo "" ; done
+    [ "${ACCEPT,,}" == "n" ] && echo "\nWARINIG: Operation was cancelled\n" && continue
 
     if [ "${OPTION,,}" == "i" ] ; then
         gnome-terminal -- bash -c "docker exec -it $ID /bin/bash || docker exec -it $ID /bin/sh ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"

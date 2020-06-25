@@ -10,8 +10,10 @@ REPO_HTTPS=$2
 BRANCH=$3
 DIRECTORY=$4
 BRANCH_ENVAR=$5
+EDITORS=$6
 
 [ -z "$BRANCH_ENVAR" ] && echo "Git manager failure, BRANCH_ENVAR property was not defined" && exit 1
+[ -z "$EDITORS" ] && EDITORS="code"
 
 LOOP_FILE="/tmp/git_manager_loop"
 RESTART_SIGNAL="/tmp/rs_git_manager"
@@ -64,7 +66,14 @@ while : ; do
     echo "|  Position: $BEHIND_INFO"
  echo -e "|   Changes: $CHANGES_INFO"
     echo "|----------------------------------------------|"
-    echo "| [V] | VIEW Repo in Code Editor               |"
+    if [[ $EDITORS == *"code"* ]]; then
+        echo "| [V] | VIEW Repo in Code Editor               |"
+    fi
+
+    if [[ $EDITORS == *"goland"* ]]; then
+        echo "| [G] | View Repo in GOLAND IDE                |"
+    fi
+    
     [ "$UNRESOLVED_CONFLICTS" == "0" ] && [ ! -z "$CHANGES" ] && \
     echo "| [C] | COMMIT New Changes                     |" # only if there are changes
     [ ! -z "$NOT_PUSHED" ] && \
@@ -82,7 +91,7 @@ while : ; do
     echo "| [X] | Exit | [W] | Refresh Window            |"
     echo -e "------------------------------------------------\e[0m"
 
-    echo "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
+    echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
         [ -f $LOOP_FILE ] && OPTION=$(cat $LOOP_FILE || echo "")
         [ -f $RESTART_SIGNAL ] && break
@@ -92,8 +101,8 @@ while : ; do
         [ -z "$KEY" ] && break
     done
     OPTION=$(cat $LOOP_FILE || echo "") && [ -z "$OPTION" ] && continue
-    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -e "\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT ; done
-    echo "" && [ "${ACCEPT,,}" == "n" ] && echo "WARINIG: Operation was cancelled" && continue
+    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -en "\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT && echo "" ; done
+    [ "${ACCEPT,,}" == "n" ] && echo -e "\nWARINIG: Operation was cancelled\n" && continue
 
     FAILED="False"
     if [ "${OPTION,,}" == "v" ] ; then
@@ -102,7 +111,11 @@ while : ; do
         rm -rf $USER_DATA_DIR
         mkdir -p $USER_DATA_DIR
         code --user-data-dir $USER_DATA_DIR $DIRECTORY
-        sleep 2 && continue
+        continue
+    elif [ "${OPTION,,}" == "g" ] ; then
+        echo "INFO: Starting goland editor..."
+        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-goland-$BRANCH_ENVAR.log -c "goland $DIRECTORY ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        continue
     elif [ "${OPTION,,}" == "c" ] ; then
         echo -e "\e[36;1mType desired commit message: \e[0m\c" && read COMMIT
         if [ -z "$COMMIT" ] ; then
@@ -115,7 +128,8 @@ while : ; do
         git add -A || FAILED="True"
         [ "$FAILED" == "False" ] && git commit -a -m "[$(date '+%d/%m/%Y %H:%M:%S')] $COMMIT" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Commit failed" && break
-        echo "SUCCESS: Commit suceeded" && sleep 2 && continue
+        echo "SUCCESS: Commit suceeded"
+        continue
     elif [ "${OPTION,,}" == "p" ] ; then
         echo "INFO: Pushing changes..."
         git checkout $BRANCH || FAILED="True"
@@ -128,12 +142,14 @@ while : ; do
         [ "$FAILED" == "False" ] && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin $BRANCH" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Push failed" && break
         
-        echo "SUCCESS: Push suceeded" && sleep 2 && continue
+        echo "SUCCESS: Push suceeded"
+        continue
     elif [ "${OPTION,,}" == "r" ] ; then
         $KIRA_SCRIPTS/git-pull.sh "$REPO_SSH" "$BRANCH" "$DIRECTORY" || FAILED="True"
         [ "$FAILED" == "True" ] && echo "ERROR: Pull failed" && break
         
-        echo "SUCCESS: Pull suceeded" && sleep 2 && continue
+        echo "SUCCESS: Pull suceeded"
+        continue
     elif [ "${OPTION,,}" == "b" ] ; then
         echo "INFO: Listing available branches..."
         git branch -r || echo "ERROR: Failed to list remote branches"
@@ -219,5 +235,5 @@ else
     touch /tmp/rs_container_manager
 fi
 
-touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 2
-source $KIRA_MANAGER/git-manager.sh "$REPO_SSH" "$REPO_HTTPS" "$BRANCH" "$DIRECTORY" "$BRANCH_ENVAR"
+touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 3
+source $KIRA_MANAGER/git-manager.sh "$REPO_SSH" "$REPO_HTTPS" "$BRANCH" "$DIRECTORY" "$BRANCH_ENVAR" "$EDITORS"

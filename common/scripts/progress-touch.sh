@@ -57,6 +57,7 @@ TIME_START="$(date -u +%s)"
 if [ ! -f $TIME_FILE ] || [ $RESULT -eq 0 ] ; then
     echo "$TIME_START" > $TIME_FILE || echo "ERROR: Failed to save time into progress time file `$TIME_FILE`"
     echo "0" > $LOADER_FILE || echo "ERROR: Failed to save progress to loader file `$LOADER_FILE`"
+    PERCENTAGE_OLD=0
 fi
 
 [ $MAX -le 0 ] && exit 0
@@ -136,7 +137,7 @@ while : ; do
     if [ "$PID" != "0" ] && [ $PERCENTAGE -eq 100 ] ; then
         echo -ne "\r${BLACK}${WHITE} ($PERCENTAGE%|${ELAPSED}s|${RESULT}/${MAX})"
         let "SPAN_AVG=($ELAPSED+$SPAN)/2" || SPAN_AVG=0
-        echo "$SPAN_AVG" > $SPAN_FILE
+        echo "$SPAN_AVG" > $SPAN_FILE  || echo "WARNING: Failed to update span file `$SPAN_FILE`"
     else
         echo -ne "\r${BLACK}${WHITE} ($PERCENTAGE%|${ELAPSED}s)"
     fi
