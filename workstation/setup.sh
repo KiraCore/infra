@@ -48,7 +48,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     $KIRA_SCRIPTS/git-pull.sh "$SDK_REPO" "$SDK_BRANCH" "$KIRA_SDK" &
     $KIRA_SCRIPTS/git-pull.sh "$DOCKS_REPO" "$DOCKS_BRANCH" "$DOCKS_SDK" &
     wait < <(jobs -p)
-    $KIRA_SCRIPTS/progress-touch.sh "+3" #4
+    $KIRA_SCRIPTS/progress-touch.sh "+4" #5
 
     # we must ensure that recovery files can't be destroyed in the update process and cause a deadlock
     rm -r -f $KIRA_MANAGER
@@ -64,8 +64,8 @@ else
     exit 1
 fi
 
-$KIRA_SCRIPTS/cdhelper-update.sh "v0.6.13" && $KIRA_SCRIPTS/progress-touch.sh "+1" #5
-$KIRA_SCRIPTS/awshelper-update.sh "v0.12.4" && $KIRA_SCRIPTS/progress-touch.sh "+1" #6
+$KIRA_SCRIPTS/cdhelper-update.sh "v0.6.13" && $KIRA_SCRIPTS/progress-touch.sh "+1" #6
+$KIRA_SCRIPTS/awshelper-update.sh "v0.12.4" && $KIRA_SCRIPTS/progress-touch.sh "+1" #7
 
 NEW_INIT_HASH=$(CDHelper hash SHA256 -p="$KIRA_WORKSTATION/init.sh" --silent=true)
 
@@ -78,23 +78,23 @@ if [ "$UPDATED" == "True" ] && [ "$NEW_INIT_HASH" != "$INIT_HASH" ] ; then
    exit 0
 fi
 
-$KIRA_WORKSTATION/setup/certs.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #7
-$KIRA_WORKSTATION/setup/envs.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #8
-$KIRA_WORKSTATION/setup/hosts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #9
-$KIRA_WORKSTATION/setup/system.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #10
-$KIRA_WORKSTATION/setup/tools.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #11
-$KIRA_WORKSTATION/setup/npm.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #12
-$KIRA_WORKSTATION/setup/rust.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #13
-$KIRA_WORKSTATION/setup/dotnet.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #14
-$KIRA_WORKSTATION/setup/systemctl2.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #15
-$KIRA_WORKSTATION/setup/docker.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #16
-$KIRA_WORKSTATION/setup/golang.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #17
-$KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
-$KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
-$KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
-$KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
-$KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
-$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
+$KIRA_WORKSTATION/setup/certs.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #8
+$KIRA_WORKSTATION/setup/envs.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #9
+$KIRA_WORKSTATION/setup/hosts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #10
+$KIRA_WORKSTATION/setup/system.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #11
+$KIRA_WORKSTATION/setup/tools.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #12
+$KIRA_WORKSTATION/setup/npm.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #13
+$KIRA_WORKSTATION/setup/rust.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #14
+$KIRA_WORKSTATION/setup/dotnet.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #15
+$KIRA_WORKSTATION/setup/systemctl2.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #16
+$KIRA_WORKSTATION/setup/docker.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #17
+$KIRA_WORKSTATION/setup/golang.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
+$KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
+$KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
+$KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
+$KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
+$KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
+$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #24
 
 touch /tmp/rs_manager
 touch /tmp/rs_git_manager
