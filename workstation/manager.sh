@@ -77,6 +77,7 @@ while : ; do
     echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
     echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
     echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
+    echo "| [D] | Mange DOCKS Git Repository             : $DOCKS_BRANCH"
     echo "|----------------------------------------------|"
     echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "| [L] | Show All LOGS in Code Editor           |"
@@ -89,7 +90,7 @@ while : ; do
     fi
     echo "| [I] | Re-INITALIZE Environment               |"
     echo "| [H] | HARD-Reset Repos & Infrastructure      |"
-    echo "| [D] | DELETE Repos & Infrastructure          |"
+    echo "| [N] | NUKE-Delete Repos & Infrastructure     |"
     echo "|----------------------------------------------|"
     echo "| [X] | Exit | [W] | Refresh Window            |"
     echo -e "------------------------------------------------\e[0m"
@@ -138,16 +139,20 @@ while : ; do
         code --user-data-dir $USER_DATA_DIR $KIRA_DUMP
         continue
     elif [ "${OPTION,,}" == "a" ] ; then
-        echo "INFO: Starting git manager..."
+        echo "INFO: Starting infra git manager..."
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "b" ] ; then
-        echo "INFO: Starting git manager..."
+        echo "INFO: Starting sekai git manager..."
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "c" ] ; then
-        echo "INFO: Starting git manager..."
+        echo "INFO: Starting sdk git manager..."
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "d" ] ; then
+        echo "INFO: Starting docks git manager..."
+        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-docks.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCKS_REPO_SSH\" \"$DOCKS_REPO\" \"$DOCKS_BRANCH\" \"$KIRA_DOCKS\" \"DOCKS_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
@@ -189,7 +194,7 @@ while : ; do
         [ "$FAILURE" == "True" ] && echo -e "\nERROR: Start script failed, logs are available in the '$KIRA_DUMP' directory" && read -d'' -s -n1 -p 'Press any key to continue...'
         [ "$FAILURE" == "False" ] && echo -e "\nSUCCESS: Infra was wiped and restarted"
         break
-    elif [ "${OPTION,,}" == "d" ] ; then
+    elif [ "${OPTION,,}" == "n" ] ; then
         echo "INFO: Wiping and removing infra..."
         $KIRA_SCRIPTS/progress-touch.sh "*0" 
         $KIRA_MANAGER/delete.sh > "$KIRA_DUMP/INFRA/manager/delete.log" 2>&1 &

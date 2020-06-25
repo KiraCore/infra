@@ -46,6 +46,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     $KIRA_SCRIPTS/git-pull.sh "$INFRA_REPO" "$INFRA_BRANCH" "$KIRA_INFRA" 777 &
     $KIRA_SCRIPTS/git-pull.sh "$SEKAI_REPO" "$SEKAI_BRANCH" "$KIRA_SEKAI" &
     $KIRA_SCRIPTS/git-pull.sh "$SDK_REPO" "$SDK_BRANCH" "$KIRA_SDK" &
+    $KIRA_SCRIPTS/git-pull.sh "$DOCKS_REPO" "$DOCKS_BRANCH" "$DOCKS_SDK" &
     wait < <(jobs -p)
     $KIRA_SCRIPTS/progress-touch.sh "+3" #4
 
