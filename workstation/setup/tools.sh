@@ -7,16 +7,18 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_BASE_TOOLS="$KIRA_SETUP/base-tools-v0.0.7" 
+KIRA_SETUP_BASE_TOOLS="$KIRA_SETUP/base-tools-v0.0.8" 
 if [ ! -f "$KIRA_SETUP_BASE_TOOLS" ] ; then
     echo "INFO: Update and Intall basic tools and dependencies..."
     apt-get update -y --fix-missing
     apt-get install -y --allow-unauthenticated --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+        aptitude \
         autoconf \
         automake \
         apt-utils \
         awscli \
         dconf-editor \
+        default-jre \
         build-essential \
         bind9-host \
         bzip2 \
@@ -29,6 +31,7 @@ if [ ! -f "$KIRA_SETUP_BASE_TOOLS" ] ; then
         expect \
         file \
         gcc \
+        gdebi \
         g++ \
         git \
         gnupg2 \
@@ -66,7 +69,9 @@ if [ ! -f "$KIRA_SETUP_BASE_TOOLS" ] ; then
         python3-pip \
         rename \
         rsync \
+        snapd \
         socat \
+        software-properties-common \
         stunnel \
         subversion \
         syslinux \

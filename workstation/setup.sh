@@ -92,7 +92,8 @@ $KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
 $KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
 $KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
 $KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
-$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
+$KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
+$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
 
 touch /tmp/rs_manager
 touch /tmp/rs_git_manager
