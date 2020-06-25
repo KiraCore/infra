@@ -37,18 +37,18 @@ MAX_VALIDATORS=254
 [ -z "$INFRA_BRANCH" ] && INFRA_BRANCH="master"
 [ -z "$SEKAI_BRANCH" ] && SEKAI_BRANCH="master"
 [ -z "$SDK_BRANCH" ] && SDK_BRANCH="master"
-[ -z "$DOCKS_BRANCH" ] && DOCKS_BRANCH="master"
+[ -z "$DOCS_BRANCH" ] && DOCS_BRANCH="master"
 [ -z "$EMAIL_NOTIFY" ] && EMAIL_NOTIFY="noreply.example.email@gmail.com"
 [ -z "$SMTP_LOGIN" ] && SMTP_LOGIN="noreply.example.email@gmail.com"
 [ -z "$SMTP_PASSWORD" ] && SMTP_PASSWORD="wpzpjrfsfznyeohs"
 [ -z "$INFRA_REPO" ] && INFRA_REPO="https://github.com/KiraCore/infra"
 [ -z "$SEKAI_REPO" ] && SEKAI_REPO="https://github.com/KiraCore/sekai"
 [ -z "$SDK_REPO" ] && SDK_REPO="https://github.com/KiraCore/cosmos-sdk"
-[ -z "$DOCKS_REPO" ] && DOCKS_REPO="https://github.com/KiraCore/docks"
+[ -z "$DOCS_REPO" ] && DOCS_REPO="https://github.com/KiraCore/docs"
 [ -z "$SEKAI_REPO_SSH" ] && SEKAI_REPO_SSH="git@github.com:KiraCore/sekai.git"
 [ -z "$INFRA_REPO_SSH" ] && INFRA_REPO_SSH="git@github.com:KiraCore/infra.git"
 [ -z "$SDK_REPO_SSH" ] && SDK_REPO_SSH="git@github.com:KiraCore/cosmos-sdk.git"
-[ -z "$DOCKS_REPO_SSH" ] && DOCKS_REPO_SSH="git@github.com:KiraCore/docks.git"
+[ -z "$DOCS_REPO_SSH" ] && DOCS_REPO_SSH="git@github.com:KiraCore/docs.git"
 [ -z "$NOTIFICATIONS" ] && NOTIFICATIONS="False"
 [ -z "$VALIDATORS_COUNT" ] && VALIDATORS_COUNT=2
 [ ! -z "$SUDO_USER" ] && KIRA_USER=$SUDO_USER
@@ -87,7 +87,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     KIRA_INFRA="$KIRA_REPOS/infra"
     KIRA_SEKAI="$KIRA_REPOS/sekai"
     KIRA_SDK="$KIRA_REPOS/sdk"
-    KIRA_DOCKS="$KIRA_REPOS/docks"
+    KIRA_DOCS="$KIRA_REPOS/docs"
     KIRA_SETUP=/kira/setup
     KIRA_MANAGER="/kira/manager"
     KIRA_PROGRESS="/kira/progress"
@@ -99,7 +99,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     mkdir -p $KIRA_INFRA
     mkdir -p $KIRA_SEKAI
     mkdir -p $KIRA_SDK
-    mkdir -p $KIRA_DOCKS
+    mkdir -p $KIRA_DOCS
     mkdir -p $KIRA_SETUP
     mkdir -p $KIRA_MANAGER
     mkdir -p $KIRA_PROGRESS
@@ -147,7 +147,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         CDHelper text lineswap --insert="KIRA_INFRA=$KIRA_INFRA" --prefix="KIRA_INFRA=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_SEKAI=$KIRA_SEKAI" --prefix="KIRA_SEKAI=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_SDK=$KIRA_SDK" --prefix="KIRA_SDK=" --path=$ETC_PROFILE --append-if-found-not=True
-        CDHelper text lineswap --insert="KIRA_DOCKS=$KIRA_DOCKS" --prefix="KIRA_DOCKS=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_DOCS=$KIRA_DOCS" --prefix="KIRA_DOCS=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_SCRIPTS=$KIRA_SCRIPTS" --prefix="KIRA_SCRIPTS=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_WORKSTATION=$KIRA_WORKSTATION" --prefix="KIRA_WORKSTATION=" --path=$ETC_PROFILE --append-if-found-not=True
 
@@ -305,16 +305,16 @@ CDHelper text lineswap --insert="USER_SHORTCUTS=/home/$KIRA_USER/.local/share/ap
 CDHelper text lineswap --insert="EMAIL_NOTIFY=$EMAIL_NOTIFY" --prefix="EMAIL_NOTIFY=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="INFRA_BRANCH=$INFRA_BRANCH" --prefix="INFRA_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SEKAI_BRANCH=$SEKAI_BRANCH" --prefix="SEKAI_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
-CDHelper text lineswap --insert="DOCKS_BRANCH=$DOCKS_BRANCH" --prefix="DOCKS_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_BRANCH=$DOCS_BRANCH" --prefix="DOCS_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_BRANCH=$SDK_BRANCH" --prefix="SDK_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="INFRA_REPO=$INFRA_REPO" --prefix="INFRA_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SEKAI_REPO=$SEKAI_REPO" --prefix="SEKAI_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_REPO=$SDK_REPO" --prefix="SDK_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
-CDHelper text lineswap --insert="DOCKS_REPO=$DOCKS_REPO" --prefix="DOCKS_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_REPO=$DOCS_REPO" --prefix="DOCS_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SEKAI_REPO_SSH=$SEKAI_REPO_SSH" --prefix="SEKAI_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="INFRA_REPO_SSH=$INFRA_REPO_SSH" --prefix="INFRA_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_REPO_SSH=$SDK_REPO_SSH" --prefix="SDK_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
-CDHelper text lineswap --insert="DOCKS_REPO_SSH=$DOCKS_REPO_SSH" --prefix="DOCKS_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="DOCS_REPO_SSH=$DOCS_REPO_SSH" --prefix="DOCS_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="VALIDATORS_COUNT=$VALIDATORS_COUNT" --prefix="VALIDATORS_COUNT=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="MAX_VALIDATORS=$MAX_VALIDATORS" --prefix="MAX_VALIDATORS=" --path=$ETC_PROFILE --append-if-found-not=True
 

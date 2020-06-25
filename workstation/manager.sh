@@ -77,7 +77,7 @@ while : ; do
     echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
     echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
     echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
-    echo "| [D] | Mange DOCKS Git Repository             : $DOCKS_BRANCH"
+    echo "| [D] | Mange DOCS Git Repository             : $DOCS_BRANCH"
     echo "|----------------------------------------------|"
     echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "| [L] | Show All LOGS in Code Editor           |"
@@ -105,7 +105,7 @@ while : ; do
         [ -z "$KEY" ] && break
     done
     OPTION=$(cat $LOOP_FILE || echo "") && [ -z "$OPTION" ] && continue
-    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -en "\n\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT && echo "" ; done
+    ACCEPT="" && while [ "${ACCEPT,,}" != "y" ] && [ "${ACCEPT,,}" != "n" ] ; do echo -en "\e[36;1mPress [Y]es to confirm option (${OPTION^^}) or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 ACCEPT && echo "" ; done
     [ "${ACCEPT,,}" == "n" ] && echo -e "\nWARINIG: Operation was cancelled\n" && continue
 
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
@@ -151,8 +151,8 @@ while : ; do
         gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "d" ] ; then
-        echo "INFO: Starting docks git manager..."
-        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-docks.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCKS_REPO_SSH\" \"$DOCKS_REPO\" \"$DOCKS_BRANCH\" \"$KIRA_DOCKS\" \"DOCKS_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        echo "INFO: Starting docs git manager..."
+        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
