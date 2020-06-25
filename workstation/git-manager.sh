@@ -10,8 +10,10 @@ REPO_HTTPS=$2
 BRANCH=$3
 DIRECTORY=$4
 BRANCH_ENVAR=$5
+EDITORS=$6
 
 [ -z "$BRANCH_ENVAR" ] && echo "Git manager failure, BRANCH_ENVAR property was not defined" && exit 1
+[ -z "$EDITORS" ] && EDITORS="code"
 
 LOOP_FILE="/tmp/git_manager_loop"
 RESTART_SIGNAL="/tmp/rs_git_manager"
@@ -64,7 +66,14 @@ while : ; do
     echo "|  Position: $BEHIND_INFO"
  echo -e "|   Changes: $CHANGES_INFO"
     echo "|----------------------------------------------|"
-    echo "| [V] | VIEW Repo in Code Editor               |"
+    if [[ $EDITORS == *"code"* ]]; then
+        echo "| [V] | VIEW Repo in Code Editor               |"
+    fi
+
+    if [[ $EDITORS == *"goland"* ]]; then
+        echo "| [G] | View Repo in GOLAND IDE                |"
+    fi
+    
     [ "$UNRESOLVED_CONFLICTS" == "0" ] && [ ! -z "$CHANGES" ] && \
     echo "| [C] | COMMIT New Changes                     |" # only if there are changes
     [ ! -z "$NOT_PUSHED" ] && \
@@ -102,6 +111,10 @@ while : ; do
         rm -rf $USER_DATA_DIR
         mkdir -p $USER_DATA_DIR
         code --user-data-dir $USER_DATA_DIR $DIRECTORY
+        continue
+    elif [ "${OPTION,,}" == "g" ] ; then
+        echo "INFO: Starting goland editor..."
+        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-goland-$BRANCH_ENVAR.log -c "goland $DIRECTORY ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         continue
     elif [ "${OPTION,,}" == "c" ] ; then
         echo -e "\e[36;1mType desired commit message: \e[0m\c" && read COMMIT

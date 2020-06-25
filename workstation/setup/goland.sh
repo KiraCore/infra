@@ -20,8 +20,7 @@ if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     #unzip CDHelper-linux-x64.zip -d $INSTALL_DIR
     #chmod -R -v 777 $INSTALL_DIR
     lsb_release -a ; getconf LONG_BIT ; java -version
-    #snap install goland --classic
-    #bash $INSTALL_DIR/bin/goland.sh &> /dev/null
+    snap install goland --classic
 else
     echo "GoLand was already installed."
 fi
