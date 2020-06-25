@@ -77,7 +77,7 @@ while : ; do
     echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
     echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
     echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
-    echo "| [D] | Mange DOCS Git Repository             : $DOCS_BRANCH"
+    echo "| [D] | Mange DOCS Git Repository              : $DOCS_BRANCH"
     echo "|----------------------------------------------|"
     echo "| [V] | VIEW All Repos in Code Editor          |"
     echo "| [L] | Show All LOGS in Code Editor           |"

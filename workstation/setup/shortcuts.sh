@@ -30,6 +30,15 @@ Icon=${KIRA_IMG}/kira-core.png
 Exec=gksudo $KIRA_MANAGER_SCRIPT
 Categories=Application;"
 
+USER_MANAGER_FAVOURITE=$USER_SHORTCUTS/kira-manager.desktop
+USER_MANAGER_DESKTOP="/home/$KIRA_USER/Desktop/KIRA-MANAGER.desktop"
+
+mkdir -p "/home/$KIRA_USER/Desktop"
+mkdir -p $USER_SHORTCUTS
+
+touch $USER_MANAGER_FAVOURITE
+touch $USER_MANAGER_DESKTOP
+
 SFM_CONTENT=$(cat $USER_MANAGER_FAVOURITE || echo "")
 SFD_CONTENT=$(cat $USER_MANAGER_DESKTOP || echo "")
 
@@ -37,10 +46,7 @@ if [ -z "$SFM_CONTENT" ] || [ "$SFD_CONTENT" != "$SFM_CONTENT" ] || [ "$KIRA_MAN
     echo "INFO: Updating shortcuts..."
     rm -f $USER_MANAGER_FAVOURITE
     rm -f $USER_MANAGER_DESKTOP
-    
-    USER_MANAGER_FAVOURITE=$USER_SHORTCUTS/kira-manager.desktop
-    USER_MANAGER_DESKTOP="/home/$KIRA_USER/Desktop/KIRA-MANAGER.desktop"
-    
+
     cat > $USER_MANAGER_FAVOURITE <<< $KIRA_MANAGER_ENTRY
     cat > $USER_MANAGER_DESKTOP <<< $KIRA_MANAGER_ENTRY
     
