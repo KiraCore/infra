@@ -248,7 +248,7 @@ while : ; do
             [ "$FAILED" == "True" ] && echo "WARNING: Failed to delete old tag '$TAG'" && break
             echo "SUCCESS: Tag '$TAG' was deleted from the commit '$COMMIT_HASH'"
         else
-            echo "INFO: Commit $COMMIT_HASH hads no existing tags"
+            echo "INFO: Commit $COMMIT_HASH has no tags"
         fi
         
         FAILED="False"
@@ -256,6 +256,10 @@ while : ; do
             ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$NEW_TAG\"" || echo "WARNING: Failed to delete new tag '$NEW_TAG'"
             ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" \"$COMMIT_HASH\"" || FAILED="True"
             [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$NEW_TAG'" && break
+            
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin --tags" || FAILED="True"
+            [ "$FAILED" == "True" ] && echo "ERROR: Failed to push tags" && break
+
             echo "SUCCESS: Tag '$NEW_TAG' was assigned to the commit '$COMMIT_HASH'"
         fi
         
