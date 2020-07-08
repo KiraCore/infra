@@ -240,14 +240,27 @@ while : ; do
         CONFIRM="" && while [ "${CONFIRM,,}" != "y" ] && [ "${CONFIRM,,}" != "n" ] ; do echo -e "\n\e[36;1mPress [Y]es to assign tag '$NEW_TAG' to hash '$COMMIT_HASH' or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 CONFIRM ; done
         [ "${CONFIRM,,}" == "y" ] && echo "INFO: Tag '$NEW_TAG' was confirmed"
         [ "${CONFIRM,,}" == "n" ] && echo "WARINIG: Changing tag was cancelled" && break
+
         git remote set-url origin $REPO_SSH || FAILED="True"
-        [ "$FAILED" == "False" ] && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$TAG\""|| FAILED="True"
-        [ "$FAILED" == "True" ] && echo "WARNING: Failed to delete tag '$TAG'"
+        [ "$FAILED" == "True" ] && echo "WARNING: Failed to set ssh origin '$REPO_SSH'" && break
+    
+        if [ ! -z "$TAG" ] ; then 
+            FAILED = "False" && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$TAG\""|| FAILED="True"
+            [ "$FAILED" == "True" ] && echo "WARNING: Failed to delete old tag '$TAG'" && break
+            echo "SUCCESS: Tag '$TAG' was deleted from the commit '$COMMIT_HASH'"
+        else
+            echo "INFO: Commit $COMMIT_HASH hads no existing tags"
+        fi
+        
+        if [ ! -z "$NEW_TAG" ] ; then 
+            FAILED = "False" && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$NEW_TAG\""|| FAILED="True"
+            [ "$FAILED" == "True" ] && echo "WARNING: Failed to delete new tag '$NEW_TAG'"
 
-        $FAILED = "False" && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" $COMMIT_HASH" || FAILED="True"
-        [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$TAG'" && break
-
-        echo "INFO: Success, tag '$TAG' was assigned to the commit '$COMMIT_HASH'"
+            FAILED = "False" && ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" \"$COMMIT_HASH\"" || FAILED="True"
+            [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$NEW_TAG'" && break
+            echo "SUCCESS: Tag '$NEW_TAG' was assigned to the commit '$COMMIT_HASH'"
+        fi
+        
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break
