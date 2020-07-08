@@ -253,7 +253,7 @@ while : ; do
         
         FAILED="False"
         if [ ! -z "$NEW_TAG" ] ; then 
-            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$NEW_TAG\"" || echo "WARNING: Failed to delete new tag '$NEW_TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$NEW_TAG\"" || echo "WARNING: Failed to delete tag '$NEW_TAG'"
             ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" \"$COMMIT_HASH\"" || FAILED="True"
             [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$NEW_TAG'" && break
             
