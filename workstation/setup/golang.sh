@@ -19,7 +19,7 @@ else
     echo "INFO: Go $(go version) was already installed"
 fi
 
-KIRA_SETUP_GO_TOOLS="$KIRA_SETUP/go-tools-v1" 
+KIRA_SETUP_GO_TOOLS="$KIRA_SETUP/go-tools-v2" 
 if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
     echo "INFO: Installing latest go tools..."
     go get -v golang.org/x/tools/cmd/guru
@@ -27,6 +27,7 @@ if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
     go get -v golang.org/x/tools/cmd/toolstash
     go get -v golang.org/x/tools/cmd/godoc
     go get -v golang.org/x/tools/cmd/gotype
+    go get -v golang.org/x/tools/cmd/goimports
     go get -v golang.org/x/tools/gopls
     go get -v golang.org/x/tools/cover
     go get -v golang.org/x/tools/go/ast/astutil
