@@ -27,14 +27,12 @@ while : ; do
     mkdir -p $DIRECTORY
     cd $DIRECTORY
 
-    BRANCH_REF=$(git rev-parse --abbrev-ref HEAD || echo "$BRANCH")
+    BRANCH_REF=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "$BRANCH")
     $(git remote set-url origin $REPO_HTTPS 2>/dev/null) || echo "WARNING: Failed to set origin of the remote branch"
     $(git fetch origin $BRANCH_REF --tags 2>/dev/null) || echo "WARNING: Failed to fetch remote changes"
 
-    set +e
-    COMMIT_HASH=$(git log -n1 --pretty='%h' || echo "undefined")
-    TAG=$(git describe --exact-match --tags $COMMIT_HASH || echo "")
-    set -e
+    COMMIT_HASH=$(git log -n1 --pretty='%h' 2>/dev/null || echo "undefined")
+    TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
     $(git cherry || git branch --set-upstream-to="origin/$BRANCH_REF") || echo "WARNING: Failed to set upstream origin"
