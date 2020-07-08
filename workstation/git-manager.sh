@@ -65,9 +65,9 @@ while : ; do
     echo "|----------------------------------------------|"
     echo "|         SSH: $REPO_SSH"
     echo "|       HTTPS: $REPO_HTTPS"
-    echo "| Commit Hash: $COMMIT_HASH"
     echo "|    Checkout: $BRANCH"
     echo "|   HEAD Name: $BRANCH_REF"
+    echo "| Commit Hash: $COMMIT_HASH"
     [ ! -z "$TAG" ] && \
     echo "|  Branch Tag: $TAG"
     [ -z "$TAG" ] && \
@@ -92,9 +92,9 @@ while : ; do
     echo "| [L] | Pull LATEST Changes                    |" # only pull if not up to date
     [ "$UNRESOLVED_CONFLICTS" != "0" ] && \
     echo "| [S] | SHOW Conflicts                         |"
-    [ ! -z "$TAG" ] && \
+    [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ ! -z "$TAG" ] && \
     echo "| [T] | Change Branch TAG                      |"
-    [ -z "$TAG" ] && \
+    [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ -z "$TAG" ] && \
     echo "| [T] | Create New Branch TAG                  |"
     echo "| [R] | Wipe and RESTORE Repo from Remote      |"
     echo "| [B] | Change to Diffrent Remote BRANCH       |"

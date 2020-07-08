@@ -110,7 +110,7 @@ while : ; do
 
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         if [ "$OPTION" == "$i" ] ; then
-            gnome-terminal -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh $name ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
+            gnome-terminal --geometry=80x30 -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh $name ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
             BREAK="True"
             break
         fi 
@@ -140,19 +140,19 @@ while : ; do
         continue
     elif [ "${OPTION,,}" == "a" ] ; then
         echo "INFO: Starting infra git manager..."
-        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "b" ] ; then
         echo "INFO: Starting sekai git manager..."
-        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "c" ] ; then
         echo "INFO: Starting sdk git manager..."
-        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "d" ] ; then
         echo "INFO: Starting docs git manager..."
-        gnome-terminal -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\"  ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\"  ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
