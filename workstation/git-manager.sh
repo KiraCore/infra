@@ -241,11 +241,10 @@ while : ; do
 
         git remote set-url origin $REPO_SSH || FAILED="True"
         [ "$FAILED" == "True" ] && echo "WARNING: Failed to set ssh origin '$REPO_SSH'" && break
-        FAILED="False"
     
-        if [ ! -z "$TAG" ] ; then 
-            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$TAG\"" || FAILED="True"
-            [ "$FAILED" == "True" ] && echo "WARNING: Failed to delete old tag '$TAG'" && break
+        if [ ! -z "$TAG" ] ; then
+            git tag -d "$TAG" || echo "WARNING: Failed to delete LOCAL tag '$TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin :refs/tags/$TAG" || echo "WARNING: Failed to delete old tag '$TAG'"
             echo "SUCCESS: Tag '$TAG' was deleted from the commit '$COMMIT_HASH'"
         else
             echo "INFO: Commit $COMMIT_HASH has no tags"
@@ -253,7 +252,8 @@ while : ; do
         
         FAILED="False"
         if [ ! -z "$NEW_TAG" ] ; then 
-            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push --delete origin \"$NEW_TAG\"" || echo "WARNING: Failed to delete tag '$NEW_TAG'"
+            git tag -d "$NEW_TAG" || echo "WARNING: Failed to delete LOCAL tag '$NEW_TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin :refs/tags/$NEW_TAG" || echo "WARNING: Failed to delete REMOTE tag '$NEW_TAG'"
             ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" \"$COMMIT_HASH\"" || FAILED="True"
             [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$NEW_TAG'" && break
             
