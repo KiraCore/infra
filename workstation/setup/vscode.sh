@@ -7,7 +7,7 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_VSCODE="$KIRA_SETUP/vscode-v0.0.3" 
+KIRA_SETUP_VSCODE="$KIRA_SETUP/vscode-v0.0.4" 
 if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     echo "Installing Visual Studio Code..."
     mkdir -p /usr/code
@@ -33,6 +33,10 @@ if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     code --force --install-extension tomoki1207.pdf --user-data-dir=/usr/code || echo "WARNING: Faile dto install `tomoki1207.pdf` extentions"
     code --force --install-extension redhat.vscode-yaml --user-data-dir=/usr/code || echo "WARNING: Faile dto install `redhat.vscode-yaml` extentions"
     code --force --install-extension golang.Go --user-data-dir=/usr/code || echo "WARNING: Faile dto install `golang.Go` extentions"
+    code --force --install-extension Dart-Code.dart-code --user-data-dir=/usr/code || echo "WARNING: Faile dto install `Dart-Code.dart-code` extentions"
+    code --force --install-extension Dart-Code.flutter --user-data-dir=/usr/code || echo "WARNING: Faile dto install `Dart-Code.flutter` extentions"
+    
+
     code --list-extensions --user-data-dir=/usr/code
 else
     echo "Visual Studio Code $(code --version --user-data-dir=/usr/code) was already installed."

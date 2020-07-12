@@ -100,10 +100,14 @@ git remote set-url origin $REPO || echo "WARNING: Failed to set origin of the re
 
 if [[ "${REPO,,}" == *"git@"* ]] ; then
     ssh-agent sh -c "ssh-add $SSHCRED ; git fetch --all"
-    ssh-agent sh -c "ssh-add $SSHCRED ; git reset --hard '@{u}'"
+    ssh-agent sh -c "ssh-add $SSHCRED ; git reset --hard '@{u}'" || \
+     ssh-agent sh -c "ssh-add $SSHCRED ; git reset --hard" || \
+     echo "Failed to reset banch"
 else
     git fetch --all
-    git reset --hard '@{u}'
+    git reset --hard '@{u}' || \
+     git reset --hard || \
+     echo "Failed to reset hard '@{u}' banch"
 fi
 
 ls -as
