@@ -38,12 +38,16 @@ DARTBIN="/usr/lib/dart/bin"
 FLUTTERROOT="/usr/lib/flutter"
 FLUTTERBIN="$FLUTTERROOT/bin"
 
+BREWBIN="/home/$KIRA_USER/.linuxbrew/bin"
+MANPATH="/home/$KIRA_USER/.linuxbrew/share/man:$MANPATH"
+INFOPATH="/home/$KIRA_USER/.linuxbrew/share/info:$INFOPATH"
+
 mkdir -p $KIRA_STATE
 mkdir -p "/home/$KIRA_USER/.cargo"
 mkdir -p "/home/$KIRA_USER/Desktop"
 mkdir -p $SOURCES_LIST
 
-SETUP_CHECK="$KIRA_SETUP/kira-env-v0.0.44" 
+SETUP_CHECK="$KIRA_SETUP/kira-env-v0.0.45" 
 if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Setting up kira environment variables"
     touch $CARGO_ENV
@@ -79,6 +83,9 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     CDHelper text lineswap --insert="DARTBIN=$DARTBIN" --prefix="DARTBIN=" --path=$ETC_PROFILE --append-if-found-not=True
     CDHelper text lineswap --insert="FLUTTERROOT=$FLUTTERROOT" --prefix="FLUTTERROOT=" --path=$ETC_PROFILE --append-if-found-not=True
     CDHelper text lineswap --insert="FLUTTERBIN=$FLUTTERBIN" --prefix="FLUTTERBIN=" --path=$ETC_PROFILE --append-if-found-not=True
+    CDHelper text lineswap --insert="BREWBIN=$BREWBIN" --prefix="BREWBIN=" --path=$ETC_PROFILE --append-if-found-not=True
+    CDHelper text lineswap --insert="MANPATH=$MANPATH" --prefix="MANPATH=" --path=$ETC_PROFILE --append-if-found-not=True
+    CDHelper text lineswap --insert="INFOPATH=$INFOPATH" --prefix="INFOPATH=" --path=$ETC_PROFILE --append-if-found-not=True
 
     source $ETC_PROFILE &> /dev/null
     CDHelper text lineswap --insert="PATH=$PATH:$GOPATH" --prefix="PATH=" --and-contains-not=":$GOPATH" --path=$ETC_PROFILE
@@ -86,11 +93,13 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     CDHelper text lineswap --insert="PATH=$PATH:$GOROOT" --prefix="PATH=" --and-contains-not=":$GOROOT" --path=$ETC_PROFILE
     source $ETC_PROFILE &> /dev/null
     CDHelper text lineswap --insert="PATH=$PATH:$GOBIN" --prefix="PATH=" --and-contains-not=":$GOBIN" --path=$ETC_PROFILE
-    source $ETC_PROFILE
+    source $ETC_PROFILE &> /dev/null
     CDHelper text lineswap --insert="PATH=$PATH:$DARTBIN" --prefix="PATH=" --and-contains-not=":$DARTBIN" --path=$ETC_PROFILE
-    source $ETC_PROFILE
+    source $ETC_PROFILE &> /dev/null
     CDHelper text lineswap --insert="PATH=$PATH:$FLUTTERBIN" --prefix="PATH=" --and-contains-not=":$FLUTTERBIN" --path=$ETC_PROFILE
-    source $ETC_PROFILE
+    source $ETC_PROFILE &> /dev/null
+    CDHelper text lineswap --insert="PATH=$PATH:$BREWBIN" --prefix="PATH=" --and-contains-not=":$BREWBIN" --path=$ETC_PROFILE
+    source $ETC_PROFILE &> /dev/null
     
     chmod 777 $ETC_PROFILE
 
