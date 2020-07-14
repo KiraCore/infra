@@ -12,7 +12,8 @@ RESTART_SIGNAL="/tmp/rs_manager"
 source "/etc/profile" &> /dev/null
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
-function checkContainerStatus() {
+function checkContainerStatus() {RA Git Repository             : v0.0.6
+| [B] | Mange S
     i="$1" && name="$2" && output="$3"
     CONTAINER_ID=$(docker ps --no-trunc -aqf name=$name || echo "")
 
@@ -61,7 +62,7 @@ while : ; do
     clear
     
     echo -e "\e[33;1m------------------------------------------------"
-    echo "|         KIRA NETWORK MANAGER v0.0.5          |"
+    echo "|         TEST NETWORK MANAGER v0.0.5          |"
     echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
     [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY       \e[33;1m|"
     [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY \e[33;1m|"
