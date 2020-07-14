@@ -18,7 +18,6 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
     add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
     add-apt-repository "deb [arch=amd64] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main"
-    add-apt-repository ppa:webupd8team/java -y
     touch $SETUP_CHECK
 else
     echo "INFO: Certs and refs were already installed."
