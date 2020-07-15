@@ -11,8 +11,8 @@ CONTAINER_REACHABLE="True"
 curl --max-time 3 "$KIRA_REGISTRY/v2/_catalog" || CONTAINER_REACHABLE="False"
 
 # ensure docker registry exists
-KIRA_SETUP_REGISTRY="$KIRA_SETUP/registry-v0.0.11-$KIRA_REGISTRY_IP-$KIRA_REGISTRY_NAME"
-if [[ $(${KIRA_SCRIPTS}/container-exists.sh "registry") != "True" ]] || [ ! -f "$KIRA_SETUP_REGISTRY" ] || [ "$CONTAINER_REACHABLE" == "False"  ] ; then
+SETUP_CHECK="$KIRA_SETUP/registry-v0.0.11-$KIRA_REGISTRY_IP-$KIRA_REGISTRY_NAME"
+if [[ $(${KIRA_SCRIPTS}/container-exists.sh "registry") != "True" ]] || [ ! -f "$SETUP_CHECK" ] || [ "$CONTAINER_REACHABLE" == "False"  ] ; then
     echo "Container 'registry' does NOT exist or update is required, creating..."
 
     ${KIRA_SCRIPTS}/container-delete.sh "registry"
@@ -37,7 +37,7 @@ if [[ $(${KIRA_SCRIPTS}/container-exists.sh "registry") != "True" ]] || [ ! -f "
 }
 EOL
     systemctl restart docker
-    touch $KIRA_SETUP_REGISTRY
+    touch $SETUP_CHECK
 else
     echo "Container 'registry' already exists."
     docker exec -i registry bin/registry --version

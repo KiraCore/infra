@@ -7,8 +7,8 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_CERTS="$KIRA_SETUP/certs-v0.0.4" 
-if [ ! -f "$KIRA_SETUP_CERTS" ] ; then
+SETUP_CHECK="$KIRA_SETUP/certs-v0.0.5" 
+if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Installing certificates and package references..."
     apt-get update -y --fix-missing
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -17,7 +17,8 @@ if [ ! -f "$KIRA_SETUP_CERTS" ] ; then
     add-apt-repository "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic universe"
     add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
     add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-    touch $KIRA_SETUP_CERTS
+    add-apt-repository "deb [arch=amd64] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main"
+    touch $SETUP_CHECK
 else
     echo "INFO: Certs and refs were already installed."
 fi

@@ -54,7 +54,10 @@ MAX_VALIDATORS=254
 [ ! -z "$SUDO_USER" ] && KIRA_USER=$SUDO_USER
 [ -z "$KIRA_USER" ] && KIRA_USER=$USER
 [ "$KIRA_USER" == "root" ] && KIRA_USER=$(logname)
-[ "$KIRA_USER" == "root" ] && echo "You must login as non root user to your machine"
+if [ "$KIRA_USER" == "root" ] ; then 
+    echo "You must login as non root user to your machine"
+    exit 1
+fi
 
 if [ "$SKIP_UPDATE" == "False" ] ; then
 

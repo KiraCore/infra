@@ -26,10 +26,13 @@ while : ; do
     
     mkdir -p $DIRECTORY
     cd $DIRECTORY
-     
-    BRANCH_REF=$(git rev-parse --abbrev-ref HEAD || echo "$BRANCH")
+
+    BRANCH_REF=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "$BRANCH")
     $(git remote set-url origin $REPO_HTTPS 2>/dev/null) || echo "WARNING: Failed to set origin of the remote branch"
-    $(git fetch origin $BRANCH_REF 2>/dev/null) || echo "WARNING: Failed to fetch remote changes"
+    $(git fetch origin $BRANCH_REF --tags 2>/dev/null) || echo "WARNING: Failed to fetch remote changes"
+
+    COMMIT_HASH=$(git log -n1 --pretty='%h' 2>/dev/null || echo "undefined")
+    TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
     $(git cherry || git branch --set-upstream-to="origin/$BRANCH_REF") || echo "WARNING: Failed to set upstream origin"
@@ -58,13 +61,18 @@ while : ; do
     echo "|           KIRA GIT MANAGER v0.0.1            |"
     echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
     echo "|----------------------------------------------|"
-    echo "|       SSH: $REPO_SSH"
-    echo "|     HTTPS: $REPO_HTTPS"
-    echo "|  Checkout: $BRANCH"
-    echo "| HEAD Name: $BRANCH_REF"
-    echo "|  Location: $DIRECTORY"
-    echo "|  Position: $BEHIND_INFO"
- echo -e "|   Changes: $CHANGES_INFO"
+    echo "|         SSH: $REPO_SSH"
+    echo "|       HTTPS: $REPO_HTTPS"
+    echo "|    Checkout: $BRANCH"
+    echo "|   HEAD Name: $BRANCH_REF"
+    echo "| Commit Hash: $COMMIT_HASH"
+    [ ! -z "$TAG" ] && \
+    echo "|  Branch Tag: $TAG"
+    [ -z "$TAG" ] && \
+    echo "|  Branch Tag: undefined"
+    echo "|    Location: $DIRECTORY"
+    echo "|    Position: $BEHIND_INFO"
+ echo -e "|     Changes: $CHANGES_INFO"
     echo "|----------------------------------------------|"
     if [[ $EDITORS == *"code"* ]]; then
         echo "| [V] | VIEW Repo in Code Editor               |"
@@ -82,6 +90,10 @@ while : ; do
     echo "| [L] | Pull LATEST Changes                    |" # only pull if not up to date
     [ "$UNRESOLVED_CONFLICTS" != "0" ] && \
     echo "| [S] | SHOW Conflicts                         |"
+    [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ ! -z "$TAG" ] && \
+    echo "| [T] | Change Branch TAG                      |"
+    [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ -z "$TAG" ] && \
+    echo "| [T] | Create New Branch TAG                  |"
     echo "| [R] | Wipe and RESTORE Repo from Remote      |"
     echo "| [B] | Change to Diffrent Remote BRANCH       |"
     echo "| [N] | Create NEW Branch from Current Remote  |"
@@ -219,6 +231,38 @@ while : ; do
         git diff --check | grep -i conflict || FAILED="True"
         echo -e "\e[39;0m"
         [ "$FAILED" == "True" ] && echo "ERROR: Failed to list merge conflicts" && break
+        break
+    elif [ "${OPTION,,}" == "t" ] ; then
+        echo "INFO: Branch Tag setup..."
+        echo -e "\e[36;1mInput new tag name: \e[0m\c" && read NEW_TAG
+        CONFIRM="" && while [ "${CONFIRM,,}" != "y" ] && [ "${CONFIRM,,}" != "n" ] ; do echo -e "\n\e[36;1mPress [Y]es to assign tag '$NEW_TAG' to hash '$COMMIT_HASH' or [N]o to cancel: \e[0m\c" && read  -d'' -s -n1 CONFIRM ; done
+        [ "${CONFIRM,,}" == "y" ] && echo "INFO: Tag '$NEW_TAG' was confirmed"
+        [ "${CONFIRM,,}" == "n" ] && echo "WARINIG: Changing tag was cancelled" && break
+
+        git remote set-url origin $REPO_SSH || FAILED="True"
+        [ "$FAILED" == "True" ] && echo "WARNING: Failed to set ssh origin '$REPO_SSH'" && break
+    
+        if [ ! -z "$TAG" ] ; then
+            git tag -d "$TAG" || echo "WARNING: Failed to delete LOCAL tag '$TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin :refs/tags/$TAG" || echo "WARNING: Failed to delete old tag '$TAG'"
+            echo "SUCCESS: Tag '$TAG' was deleted from the commit '$COMMIT_HASH'"
+        else
+            echo "INFO: Commit $COMMIT_HASH has no tags"
+        fi
+        
+        FAILED="False"
+        if [ ! -z "$NEW_TAG" ] ; then 
+            git tag -d "$NEW_TAG" || echo "WARNING: Failed to delete LOCAL tag '$NEW_TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin :refs/tags/$NEW_TAG" || echo "WARNING: Failed to delete REMOTE tag '$NEW_TAG'"
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git tag \"$NEW_TAG\" \"$COMMIT_HASH\"" || FAILED="True"
+            [ "$FAILED" == "True" ] && echo "ERROR: Failed to create new tag '$NEW_TAG'" && break
+            
+            ssh-agent sh -c "ssh-add $SSH_KEY_PRIV_PATH ; git push origin --tags" || FAILED="True"
+            [ "$FAILED" == "True" ] && echo "ERROR: Failed to push tags" && break
+
+            echo "SUCCESS: Tag '$NEW_TAG' was assigned to the commit '$COMMIT_HASH'"
+        fi
+        
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break

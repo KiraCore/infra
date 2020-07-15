@@ -94,7 +94,8 @@ $KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
 $KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
 $KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
 $KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
-$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #24
+$KIRA_WORKSTATION/setup/dart.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #24
+$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #25
 
 touch /tmp/rs_manager
 touch /tmp/rs_git_manager
