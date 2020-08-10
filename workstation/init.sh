@@ -70,15 +70,6 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         fi
     fi
     
-    [ "$INTERACTIVE" == "True" ] && if [ "$SKIP_UPDATE" == "False" ] ; then
-        echo -e "\e[36;1mPress [Y]es/[N]o if you want to run in debug mode, [ENTER] if '$DEBUG_MODE': \e[0m\c" && read  -d'' -s -n1 NEW_DEBUG_MODE
-        if [ "${NEW_DEBUG_MODE,,}" == "y" ] ; then
-            DEBUG_MODE="True"
-        elif [ "${NEW_DEBUG_MODE,,}" == "n" ]  ; then
-            DEBUG_MODE="False"
-        fi
-    fi
-    
     # in the non interactive mode always use explicit shell
     [ "$INTERACTIVE" != "True" ] && set -x 
 

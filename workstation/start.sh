@@ -104,7 +104,6 @@ for ((i=1;i<=$VALIDATORS_COUNT;i++)); do
      -e EMAIL_NOTIFY="$EMAIL_NOTIFY" \
      -e SMTP_SECRET="$SMTP_SECRET" \
      -e NOTIFICATIONS="$NOTIFICATIONS" \
-     -e DEBUG_MODE="$DEBUG_MODE" \
      -e SILENT_MODE="$SILENT_MODE" \
      -e SEEDS="$SEEDS" \
      -e PEERS="$PEERS" \
