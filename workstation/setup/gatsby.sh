@@ -22,7 +22,7 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Installing nvm..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
     source /root/.bashrc
-     echo "INFO: Installing gatsby..."
+    echo "INFO: Installing gatsby..."
     npm install -g gatsby-cli
     gatsby -v
     touch $SETUP_CHECK

@@ -11,6 +11,7 @@ BRANCH=$3
 DIRECTORY=$4
 BRANCH_ENVAR=$5
 EDITORS=$6
+DEBUG_MODE=$7
 
 [ -z "$BRANCH_ENVAR" ] && echo "Git manager failure, BRANCH_ENVAR property was not defined" && exit 1
 [ -z "$EDITORS" ] && EDITORS="code"
@@ -35,7 +36,7 @@ while : ; do
     TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
-    $(git cherry || git branch --set-upstream-to="origin/$BRANCH_REF") || echo "WARNING: Failed to set upstream origin"
+    $(git cherry 2>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" 2>/dev/null) || echo "WARNING: Failed to set upstream origin"
     
     BEHIND=$(git rev-list $BRANCH_REF..origin/$BRANCH_REF --count || echo "unknown")
     BEHIND_INFO=$BEHIND
@@ -57,10 +58,10 @@ while : ; do
     
     clear
     
-    echo -e "\e[32;1m------------------------------------------------"
-    echo "|           KIRA GIT MANAGER v0.0.1            |"
-    echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
-    echo "|----------------------------------------------|"
+    echo -e "\e[32;1m-------------------------------------------------"
+    echo "|           KIRA GIT MANAGER v0.0.2             |"
+    echo "|             $(date '+%d/%m/%Y %H:%M:%S')               |"
+    echo "|-----------------------------------------------|"
     echo "|         SSH: $REPO_SSH"
     echo "|       HTTPS: $REPO_HTTPS"
     echo "|    Checkout: $BRANCH"
@@ -73,35 +74,35 @@ while : ; do
     echo "|    Location: $DIRECTORY"
     echo "|    Position: $BEHIND_INFO"
  echo -e "|     Changes: $CHANGES_INFO"
-    echo "|----------------------------------------------|"
+    echo "|-----------------------------------------------|"
     if [[ $EDITORS == *"code"* ]]; then
-        echo "| [V] | VIEW Repo in Code Editor               |"
+        echo "| [V] | VIEW Repo in Code Editor                |"
     fi
 
     if [[ $EDITORS == *"goland"* ]]; then
-        echo "| [G] | View Repo in GOLAND IDE                |"
+        echo "| [G] | View Repo in GOLAND IDE                 |"
     fi
     
     [ "$UNRESOLVED_CONFLICTS" == "0" ] && [ ! -z "$CHANGES" ] && \
-    echo "| [C] | COMMIT New Changes                     |" # only if there are changes
+    echo "| [C] | COMMIT New Changes                      |" # only if there are changes
     [ ! -z "$NOT_PUSHED" ] && \
     echo "| [P] | PUSH New Changes to $BRANCH" # only push if not pushed commits found
     [ -z "$CHANGES" ] && [ ! -z "$BEHIND" ] && [ -z "${BEHIND##[0-9]*}" ] && [ $BEHIND -ge 1 ] && \
-    echo "| [L] | Pull LATEST Changes                    |" # only pull if not up to date
+    echo "| [L] | Pull LATEST Changes                     |" # only pull if not up to date
     [ "$UNRESOLVED_CONFLICTS" != "0" ] && \
-    echo "| [S] | SHOW Conflicts                         |"
+    echo "| [S] | SHOW Conflicts                          |"
     [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ ! -z "$TAG" ] && \
-    echo "| [T] | Change Branch TAG                      |"
+    echo "| [T] | Change Branch TAG                       |"
     [ -z "$CHANGES" ] && [ -z "$NOT_PUSHED" ] && [ -z "$TAG" ] && \
-    echo "| [T] | Create New Branch TAG                  |"
-    echo "| [R] | Wipe and RESTORE Repo from Remote      |"
-    echo "| [B] | Change to Diffrent Remote BRANCH       |"
-    echo "| [N] | Create NEW Branch from Current Remote  |"
+    echo "| [T] | Create New Branch TAG                   |"
+    echo "| [R] | Wipe and RESTORE Repo from Remote       |"
+    echo "| [B] | Change to Diffrent Remote BRANCH        |"
+    echo "| [N] | Create NEW Branch from Current Remote   |"
     [ ! -z "$BEHIND" ] && [ -z "${BEHIND##[0-9]*}" ] && [ $BEHIND -eq 0 ] && [ -z "$NOT_PUSHED" ] && [ -z "$CHANGES" ] && \
-    echo "| [A] | Pull Changes from ANOTHER Branch       |"
-    echo "|----------------------------------------------|"
-    echo "| [X] | Exit | [W] | Refresh Window            |"
-    echo -e "------------------------------------------------\e[0m"
+    echo "| [A] | Pull Changes from ANOTHER Branch        |"
+    echo "|-----------------------------------------------|"
+    echo "| [X] | Exit | [W] | Refresh Window | [Y] Debug |"
+ echo -e "-------------------------------------------------\e[0m"
 
     echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
@@ -266,6 +267,10 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break
+    elif [ "${OPTION,,}" == "y" ] ; then
+        echo "INFO: Enabling debug mode..."
+        DEBUG_MODE="True"
+        break
     elif [ "${OPTION,,}" == "x" ] ; then
         exit 0
     fi
@@ -280,4 +285,4 @@ else
 fi
 
 touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 3
-source $KIRA_MANAGER/git-manager.sh "$REPO_SSH" "$REPO_HTTPS" "$BRANCH" "$DIRECTORY" "$BRANCH_ENVAR" "$EDITORS"
+source $KIRA_MANAGER/git-manager.sh "$REPO_SSH" "$REPO_HTTPS" "$BRANCH" "$DIRECTORY" "$BRANCH_ENVAR" "$EDITORS" "$DEBUG_MODE"

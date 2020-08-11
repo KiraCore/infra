@@ -19,7 +19,7 @@ INIT_HASH=$3
 [ -z "$INIT_HASH" ] && INIT_HASH=$(CDHelper hash SHA256 -p="$KIRA_MANAGER/init.sh" --silent=true || echo "")
 
 echo "------------------------------------------------"
-echo "|       STARTED: KIRA INFRA SETUP v0.0.2       |"
+echo "|       STARTED: KIRA INFRA SETUP v0.0.3       |"
 echo "|----------------------------------------------|"
 echo "|       INFRA BRANCH: $INFRA_BRANCH"
 echo "|       SEKAI BRANCH: $SEKAI_BRANCH"
@@ -88,20 +88,27 @@ $KIRA_WORKSTATION/setup/rust.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #14
 $KIRA_WORKSTATION/setup/dotnet.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #15
 $KIRA_WORKSTATION/setup/systemctl2.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #16
 $KIRA_WORKSTATION/setup/docker.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #17
-$KIRA_WORKSTATION/setup/golang.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
-$KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
-$KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
-$KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
-$KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
-$KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
-$KIRA_WORKSTATION/setup/dart.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #24
-$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #25
+$KIRA_WORKSTATION/setup/gatsby.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
+$KIRA_WORKSTATION/setup/golang.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
+$KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
+$KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
+$KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
+$KIRA_WORKSTATION/setup/registry.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #23
+$KIRA_WORKSTATION/setup/goland.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #24
+$KIRA_WORKSTATION/setup/dart.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #25
+$KIRA_WORKSTATION/setup/shortcuts.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #26
 
 touch /tmp/rs_manager
 touch /tmp/rs_git_manager
 touch /tmp/rs_container_manager
 
+cd $KIRA_SEKAI
+pre-commit install || echo "WARINING: Failed to install hooks in sekai repo"
+
+cd $KIRA_SDK
+pre-commit install || echo "WARINING: Failed to install hooks in sdk repo"
+
 echo "------------------------------------------------"
-echo "| FINISHED: KIRA INFRA SETUP v0.0.2            |"
+echo "| FINISHED: KIRA INFRA SETUP v0.0.3            |"
 echo "|  ELAPSED: $(($(date -u +%s)-$START_TIME)) seconds"
 echo "------------------------------------------------"

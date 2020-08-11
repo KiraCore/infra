@@ -19,7 +19,7 @@ else
     echo "INFO: Go $(go version) was already installed"
 fi
 
-KIRA_SETUP_GO_TOOLS="$KIRA_SETUP/go-tools-v2" 
+KIRA_SETUP_GO_TOOLS="$KIRA_SETUP/go-tools-v3" 
 if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
     echo "INFO: Installing latest go tools..."
     go get -v golang.org/x/tools/cmd/guru
@@ -40,6 +40,11 @@ if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
     go get -v golang.org/x/tools/txtar
     go get -v github.com/ramya-rao-a/go-outline
     go get -v github.com/rogpeppe/godef
+
+    echo "INFO: Installing essential go tools..."
+    /bin/su -c "brew install pre-commit" - $KIRA_USER
+    /bin/su -c "brew install golangci/tap/golangci-lint" - $KIRA_USER
+    go get -u golang.org/x/lint/golint
     touch $KIRA_SETUP_GO_TOOLS
 else
     echo "INFO: Go tools were already installed"

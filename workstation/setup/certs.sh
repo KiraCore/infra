@@ -7,7 +7,7 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-SETUP_CHECK="$KIRA_SETUP/certs-v0.0.5" 
+SETUP_CHECK="$KIRA_SETUP/certs-v0.0.6" 
 if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Installing certificates and package references..."
     apt-get update -y --fix-missing
@@ -18,6 +18,7 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
     add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
     add-apt-repository "deb [arch=amd64] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main"
+    apt-add-repository ppa:maarten-fonville/android-studio -y
     touch $SETUP_CHECK
 else
     echo "INFO: Certs and refs were already installed."

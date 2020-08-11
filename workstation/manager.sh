@@ -5,6 +5,7 @@ set -e
 
 # Local Update Shortcut:
 # (rm -fv $KIRA_MANAGER/manager.sh) && nano $KIRA_MANAGER/manager.sh && chmod 777 $KIRA_MANAGER/manager.sh && touch /tmp/rs_manager
+DEBUG_MODE=$1
 
 LOOP_FILE="/tmp/manager_loop"
 VARS_FILE="/tmp/manager_vars"
@@ -60,12 +61,12 @@ while : ; do
     source $VARS_FILE
     clear
     
-    echo -e "\e[33;1m------------------------------------------------"
-    echo "|         KIRA NETWORK MANAGER v0.0.5          |"
-    echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
+    echo -e "\e[33;1m-------------------------------------------------"
+    echo "|         KIRA NETWORK MANAGER v0.0.6           |"
+    echo "|             $(date '+%d/%m/%Y %H:%M:%S')               |"
     [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY       \e[33;1m|"
     [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY \e[33;1m|"
-    echo "|----------------------------------------------| [status:height]"
+    echo "|-----------------------------------------------| [status:height]"
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         CONTAINER_ID="CONTAINER_ID_$i" && [ -z "${!CONTAINER_ID}" ] && continue
         CONTAINER_STATUS="CONTAINER_STATUS_$i" && status="${!CONTAINER_STATUS}"
@@ -73,27 +74,27 @@ while : ; do
         echo "${LABEL:0:46} : $status"
     done
     [ "$CONTAINERS_COUNT" != "0" ] && \
-    echo "|----------------------------------------------|"
-    echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
-    echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
-    echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
-    echo "| [D] | Mange DOCS Git Repository              : $DOCS_BRANCH"
-    echo "|----------------------------------------------|"
-    echo "| [V] | VIEW All Repos in Code Editor          |"
-    echo "| [L] | Show All LOGS in Code Editor           |"
-    echo "|----------------------------------------------|"
+    echo "|-----------------------------------------------|"
+    echo "| [A] | Mange INFRA Git Repository              : $INFRA_BRANCH"
+    echo "| [B] | Mange SEKAI Git Repository              : $SEKAI_BRANCH"
+    echo "| [C] | Mange COSMOS-SDK Git Repository         : $SDK_BRANCH"
+    echo "| [D] | Mange DOCS Git Repository               : $DOCS_BRANCH"
+    echo "|-----------------------------------------------|"
+    echo "| [V] | VIEW All Repos in Code Editor           |"
+    echo "| [L] | Show All LOGS in Code Editor            |"
+    echo "|-----------------------------------------------|"
     if [ "$CONTAINERS_COUNT" != "0" ] ; then
         [ "$EXITED" == "False" ] && \
-        echo "| [S] | STOP All Containers                    |"
-        echo "| [R] | Re-START All Containers                |"
-        echo "|----------------------------------------------|"
+        echo "| [S] | STOP All Containers                     |"
+        echo "| [R] | Re-START All Containers                 |"
+        echo "|-----------------------------------------------|"
     fi
-    echo "| [I] | Re-INITALIZE Environment               |"
-    echo "| [H] | HARD-Reset Repos & Infrastructure      |"
-    echo "| [N] | NUKE-Delete Repos & Infrastructure     |"
-    echo "|----------------------------------------------|"
-    echo "| [X] | Exit | [W] | Refresh Window            |"
-    echo -e "------------------------------------------------\e[0m"
+    echo "| [I] | Re-INITALIZE Environment                |"
+    echo "| [H] | HARD-Reset Repos & Infrastructure       |"
+    echo "| [N] | NUKE-Delete Repos & Infrastructure      |"
+    echo "|-----------------------------------------------|"
+    echo "| [X] | Exit | [W] | Refresh Window | [Y] Debug |"
+    echo -e "-------------------------------------------------\e[0m"
     
     echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
@@ -110,7 +111,7 @@ while : ; do
 
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         if [ "$OPTION" == "$i" ] ; then
-            gnome-terminal --geometry=80x30 -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh $name ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
+            gnome-terminal --geometry=90x30 -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh \"$name\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
             BREAK="True"
             break
         fi 
@@ -140,19 +141,19 @@ while : ; do
         continue
     elif [ "${OPTION,,}" == "a" ] ; then
         echo "INFO: Starting infra git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "b" ] ; then
         echo "INFO: Starting sekai git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "c" ] ; then
         echo "INFO: Starting sdk git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "d" ] ; then
         echo "INFO: Starting docs git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\"  ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
@@ -206,6 +207,10 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break
+    elif [ "${OPTION,,}" == "y" ] ; then
+        echo "INFO: Enabling debug mode..."
+        DEBUG_MODE="True"
+        break
     elif [ "${OPTION,,}" == "x" ] ; then
         exit 0
     fi
@@ -219,5 +224,5 @@ else
 fi
 
 touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 2
-source $KIRA_MANAGER/manager.sh
+source $KIRA_MANAGER/manager.sh "$DEBUG_MODE"
 
