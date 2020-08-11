@@ -4,12 +4,14 @@ exec 2>&1
 set -e
 
 NAME=$1
-DEBUG_MODE=$2
+
 
 LOOP_FILE="/tmp/container_manager_loop"
 RESTART_SIGNAL="/tmp/rs_container_manager"
 source "/etc/profile" &> /dev/null
 CONTAINER_DUPM="/home/$KIRA_USER/Desktop/DUMP/${NAME^^}"
+
+DEBUG_MODE=$2
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
 while : ; do

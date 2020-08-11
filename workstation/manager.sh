@@ -5,12 +5,13 @@ set -e
 
 # Local Update Shortcut:
 # (rm -fv $KIRA_MANAGER/manager.sh) && nano $KIRA_MANAGER/manager.sh && chmod 777 $KIRA_MANAGER/manager.sh && touch /tmp/rs_manager
-DEBUG_MODE=$1
 
 LOOP_FILE="/tmp/manager_loop"
 VARS_FILE="/tmp/manager_vars"
 RESTART_SIGNAL="/tmp/rs_manager"
 source "/etc/profile" &> /dev/null
+
+DEBUG_MODE=$1
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
 function checkContainerStatus() {

@@ -11,7 +11,6 @@ BRANCH=$3
 DIRECTORY=$4
 BRANCH_ENVAR=$5
 EDITORS=$6
-DEBUG_MODE=$7
 
 [ -z "$BRANCH_ENVAR" ] && echo "Git manager failure, BRANCH_ENVAR property was not defined" && exit 1
 [ -z "$EDITORS" ] && EDITORS="code"
@@ -19,6 +18,8 @@ DEBUG_MODE=$7
 LOOP_FILE="/tmp/git_manager_loop"
 RESTART_SIGNAL="/tmp/rs_git_manager"
 source "/etc/profile" &> /dev/null
+
+DEBUG_MODE=$7
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
 while : ; do
@@ -36,7 +37,7 @@ while : ; do
     TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
-    $(git cherry 2>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" 2>/dev/null) || echo "WARNING: Failed to set upstream origin"
+    $(git cherry &>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" &>/dev/null) || echo "WARNING: Failed to set upstream origin"
     
     BEHIND=$(git rev-list $BRANCH_REF..origin/$BRANCH_REF --count || echo "unknown")
     BEHIND_INFO=$BEHIND

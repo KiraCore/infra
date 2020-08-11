@@ -100,7 +100,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     rm -rfv $KIRA_DUMP
     mkdir -p "$KIRA_DUMP/INFRA/manager"
 
-    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.6" 
+    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.7" 
     if [ ! -f "$KIRA_SETUP_ESSSENTIALS" ] ; then
         echo "INFO: Installing Essential Packages and Variables..."
         apt-get update -y > /dev/null
@@ -113,6 +113,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         git config --add --global core.autocrlf input || echo "WARNING: Failed to set global autocrlf"
         git config --unset --global core.filemode || echo "WARNING: Failed to unset global filemode"
         git config --add --global core.filemode false || echo "WARNING: Failed to set global filemode"
+        git config --add --global pager.branch false || echo "WARNING: Failed to disable branch pager"
     
         echo "INFO: Base Tools Setup..."
         cd /tmp
