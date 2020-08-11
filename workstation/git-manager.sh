@@ -37,7 +37,7 @@ while : ; do
     TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
-    $(git cherry &>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" &>/dev/null) || echo "WARNING: Failed to set upstream origin"
+    $(git cherry 2>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" &>/dev/null) || echo "WARNING: Failed to set upstream origin"
     
     BEHIND=$(git rev-list $BRANCH_REF..origin/$BRANCH_REF --count || echo "unknown")
     BEHIND_INFO=$BEHIND
@@ -47,7 +47,7 @@ while : ; do
 
     CHANGES=$(git diff --shortstat || echo "unknown")
     CHANGES_INFO=$(echo $CHANGES | xargs) # remove whitespaces
-    NOT_PUSHED=$(git cherry || echo "unknown") # not pushed changes
+    NOT_PUSHED=$(git cherry 2>/dev/null || echo "unknown") # not pushed changes
     [ ! -z "$NOT_PUSHED" ] && [ -z "$CHANGES_INFO" ] && CHANGES_INFO="Detected NOT pushed changes!"
     [ -z "$CHANGES_INFO" ] && CHANGES_INFO="NO changes detected"
     CHANGES_INFO=$(echo $CHANGES_INFO | sed s/" insertions"// | sed s/" deletions"//)
