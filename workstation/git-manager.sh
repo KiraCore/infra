@@ -30,14 +30,14 @@ while : ; do
     cd $DIRECTORY
 
     BRANCH_REF=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "$BRANCH")
-    $(git remote set-url origin $REPO_HTTPS 2>/dev/null) || echo "WARNING: Failed to set origin of the remote branch"
-    $(git fetch origin $BRANCH_REF --tags 2>/dev/null) || echo "WARNING: Failed to fetch remote changes"
+    $(git remote set-url origin $REPO_HTTPS 2>/dev/null) || echo "\nWARNING: Failed to set origin of the remote branch"
+    $(git fetch origin $BRANCH_REF --tags 2>/dev/null) || echo "\nWARNING: Failed to fetch remote changes"
 
     COMMIT_HASH=$(git log -n1 --pretty='%h' 2>/dev/null || echo "undefined")
     TAG=$(git describe --exact-match --tags $COMMIT_HASH 2>/dev/null || echo "")
 
     # Following command detects if upstream is specified and sets it if not
-    $(git cherry 2>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" &>/dev/null) || echo "WARNING: Failed to set upstream origin"
+    $(git cherry 2>/dev/null || git branch --set-upstream-to="origin/$BRANCH_REF" &>/dev/null) || :
     
     BEHIND=$(git rev-list $BRANCH_REF..origin/$BRANCH_REF --count || echo "unknown")
     BEHIND_INFO=$BEHIND
@@ -48,7 +48,7 @@ while : ; do
     CHANGES=$(git diff --shortstat || echo "unknown")
     CHANGES_INFO=$(echo $CHANGES | xargs) # remove whitespaces
     NOT_PUSHED=$(git cherry 2>/dev/null || echo "unknown") # not pushed changes
-    [ ! -z "$NOT_PUSHED" ] && [ -z "$CHANGES_INFO" ] && CHANGES_INFO="Detected NOT pushed changes!"
+    [ ! -z "$NOT_PUSHED" ] && [ -z "$CHANGES_INFO" ] && [ "$NOT_PUSHED" != "unknown" ] && CHANGES_INFO="Detected NOT pushed changes!"
     [ -z "$CHANGES_INFO" ] && CHANGES_INFO="NO changes detected"
     CHANGES_INFO=$(echo $CHANGES_INFO | sed s/" insertions"// | sed s/" deletions"//)
 
@@ -86,7 +86,7 @@ while : ; do
     
     [ "$UNRESOLVED_CONFLICTS" == "0" ] && [ ! -z "$CHANGES" ] && \
     echo "| [C] | COMMIT New Changes                      |" # only if there are changes
-    [ ! -z "$NOT_PUSHED" ] && \
+    [ ! -z "$NOT_PUSHED" ] && [ "$NOT_PUSHED" != "unknown" ] \
     echo "| [P] | PUSH New Changes to $BRANCH" # only push if not pushed commits found
     [ -z "$CHANGES" ] && [ ! -z "$BEHIND" ] && [ -z "${BEHIND##[0-9]*}" ] && [ $BEHIND -ge 1 ] && \
     echo "| [L] | Pull LATEST Changes                     |" # only pull if not up to date
