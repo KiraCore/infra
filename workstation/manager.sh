@@ -65,14 +65,14 @@ while : ; do
     echo -e "\e[33;1m-------------------------------------------------"
     echo "|         KIRA NETWORK MANAGER v0.0.6           |"
     echo "|             $(date '+%d/%m/%Y %H:%M:%S')               |"
-    [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY       \e[33;1m|"
-    [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY \e[33;1m|"
+    [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY        \e[33;1m|"
+    [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY  \e[33;1m|"
     echo "|-----------------------------------------------| [status:height]"
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         CONTAINER_ID="CONTAINER_ID_$i" && [ -z "${!CONTAINER_ID}" ] && continue
         CONTAINER_STATUS="CONTAINER_STATUS_$i" && status="${!CONTAINER_STATUS}"
         LABEL="| [$i] | Inspect $name container                 "
-        echo "${LABEL:0:46} : $status"
+        echo "${LABEL:0:47} : $status"
     done
     [ "$CONTAINERS_COUNT" != "0" ] && \
     echo "|-----------------------------------------------|"
