@@ -86,7 +86,7 @@ while : ; do
     
     [ "$UNRESOLVED_CONFLICTS" == "0" ] && [ ! -z "$CHANGES" ] && \
     echo "| [C] | COMMIT New Changes                      |" # only if there are changes
-    [ ! -z "$NOT_PUSHED" ] && [ "$NOT_PUSHED" != "unknown" ] \
+    [ ! -z "$NOT_PUSHED" ] && [ "$NOT_PUSHED" != "unknown" ] && \
     echo "| [P] | PUSH New Changes to $BRANCH" # only push if not pushed commits found
     [ -z "$CHANGES" ] && [ ! -z "$BEHIND" ] && [ -z "${BEHIND##[0-9]*}" ] && [ $BEHIND -ge 1 ] && \
     echo "| [L] | Pull LATEST Changes                     |" # only pull if not up to date
