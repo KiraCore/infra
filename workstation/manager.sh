@@ -80,6 +80,9 @@ while : ; do
     echo "| [B] | Mange SEKAI Git Repository              : $SEKAI_BRANCH"
     echo "| [C] | Mange COSMOS-SDK Git Repository         : $SDK_BRANCH"
     echo "| [D] | Mange DOCS Git Repository               : $DOCS_BRANCH"
+    echo "| [E] | Mange SAIFU Git Repository              : $SAIFU_BRANCH"
+    echo "| [F] | Mange KIRA-FRONTEND Git Repository      : $KIRAF_BRANCH"
+    echo "| [G] | Mange IDO-FRONTEND Git Repository       : $IDOF_BRANCH"
     echo "|-----------------------------------------------|"
     echo "| [V] | VIEW All Repos in Code Editor           |"
     echo "| [L] | Show All LOGS in Code Editor            |"
@@ -155,6 +158,18 @@ while : ; do
     elif [ "${OPTION,,}" == "d" ] ; then
         echo "INFO: Starting docs git manager..."
         gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "e" ] ; then
+        echo "INFO: Starting saifu git manager..."
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-saifu.log -c "$KIRA_MANAGER/git-manager.sh \"$SAIFU_REPO_SSH\" \"$SAIFU_REPO\" \"$SAIFU_BRANCH\" \"$KIRA_DOCS\" \"SAIFU_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "f" ] ; then
+        echo "INFO: Starting kiraf git manager..."
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-kiraf.log -c "$KIRA_MANAGER/git-manager.sh \"$KIRAF_REPO_SSH\" \"$KIRAF_REPO\" \"$KIRAF_BRANCH\" \"$KIRAF_DOCS\" \"KIRAF_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "g" ] ; then
+        echo "INFO: Starting idof git manager..."
+        gnome-terminal --geometry=90x30 -- script -e $KIRA_DUMP/INFRA/manager/git-idof.log -c "$KIRA_MANAGER/git-manager.sh \"$IDOF_REPO_SSH\" \"$IDOF_REPO\" \"$IDOF_BRANCH\" \"$KIRA_DOCS\" \"IDOF_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."

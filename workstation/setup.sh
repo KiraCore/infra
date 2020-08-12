@@ -47,8 +47,11 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     $KIRA_SCRIPTS/git-pull.sh "$SEKAI_REPO" "$SEKAI_BRANCH" "$KIRA_SEKAI" &
     $KIRA_SCRIPTS/git-pull.sh "$INFRA_REPO" "$INFRA_BRANCH" "$KIRA_INFRA" 777 &
     $KIRA_SCRIPTS/git-pull.sh "$DOCS_REPO" "$DOCS_BRANCH" "$KIRA_DOCS" &
+    $KIRA_SCRIPTS/git-pull.sh "$SAIFU_REPO" "$SAIFU_BRANCH" "$SAIFU_DOCS" &
+    $KIRA_SCRIPTS/git-pull.sh "$KIRAF_REPO" "$KIRAF_BRANCH" "$KIRAF_DOCS" &
+    $KIRA_SCRIPTS/git-pull.sh "$IDOF_REPO" "$IDOF_BRANCH" "$IDOF_DOCS" &
     wait < <(jobs -p)
-    $KIRA_SCRIPTS/progress-touch.sh "+4" #5
+    $KIRA_SCRIPTS/progress-touch.sh "+7" #7
 
     # we must ensure that recovery files can't be destroyed in the update process and cause a deadlock
     rm -r -f $KIRA_MANAGER
