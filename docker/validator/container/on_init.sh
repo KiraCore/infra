@@ -71,7 +71,7 @@ mkdir -p "$COMMON_DIR/signing-keys"
 mkdir -p "$COMMON_DIR/test-keys"
 mkdir -p "$COMMON_DIR/validator-keys"
 
-sekaid init --chain-id $CHAIN_ID "$MONIKER"
+sekaid init --chain-id="$CHAIN_ID" "$MONIKER"
 
 # NOTE: can be supplied from parameter, in such case following instruction can be used: sed -i 's/\\\"/\"/g' $PATH_TO_FILE
 # NOTE: to VALIDATOR_KEY new key delete $SIGNING_KEY_PATH and run sekaid start 
@@ -128,7 +128,7 @@ if [ $VALIDATOR_INDEX -eq 1 ] ; then # first validator always creates a genesis 
 
         echo "INFO: Adding genesis accounts..."
         sekaid add-genesis-account $TEST_ACC_ADDR 100000000000000$DENOM,10000000samoleans,100000000uatom,1000000usent,100000000ubtc
-        sekaid add-genesis-account $VALIDATOR_ACC_ADDR 200000000000000$DENOM
+        sekaid add-genesis-account $VALIDATOR_ACC_ADDR 200000000000000$DENOM,1000000000stake,1000000000validatortoken
 
         echo "INFO: Creating $VALIDATOR_ACC_NAME genesis tx..."
         if [ ! -f "$TMP_NODE_KEY" ] || [ ! -f "$TMP_SIGNING_KEY" ] ; then
@@ -152,7 +152,7 @@ if [ $VALIDATOR_INDEX -eq 1 ] ; then # first validator always creates a genesis 
         echo "INFO: Cons Pub: $TMP_CONSPUB"
         echo "INFO: Address: $TMP_ADDRESS"
         #--node-id "$TMP_NODE_ID" --details "Kira Hub Validator $i"
-        sekaid gentx --trace --name $VALIDATOR_ACC_NAME --amount 90000000000${DENOM} << EOF
+        sekaid gentx-claim $VALIDATOR_ACC_NAME << EOF
 $KEYRINGPASS
 $KEYRINGPASS
 $KEYRINGPASS
