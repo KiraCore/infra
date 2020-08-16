@@ -157,9 +157,7 @@ $KEYRINGPASS
 $KEYRINGPASS
 EOF
     done
-    echo "INFO: Collecting gen tx'es..."
-    sekaid collect-gentxs
-
+    
     # original signing key and node-id has to be recovered
     echo "INFO: Key recovery and chain hard reset"
     cat $NODE_KEY > $NODE_KEY_PATH
