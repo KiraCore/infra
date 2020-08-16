@@ -42,7 +42,7 @@ set -e
 [ -z "$STATUS_FAUCET" ] && STATUS_FAUCET="unknown"
 
 BLOCK_HEIGHT_FILE="$SELF_LOGS/latest_block_height.txt" && touch $BLOCK_HEIGHT_FILE
-HEIGHT=$(sekaicli status 2>/dev/null | jq -r '.sync_info.latest_block_height' 2>/dev/null | xargs || echo "")
+HEIGHT=$(sekaid status 2>/dev/null | jq -r '.sync_info.latest_block_height' 2>/dev/null | xargs || echo "")
 PREVIOUS_HEIGHT=$(cat $BLOCK_HEIGHT_FILE)
 
 if [ -z "$HEIGHT" ] || [ -z "${HEIGHT##*[!0-9]*}" ] ; then # not a number
@@ -77,7 +77,6 @@ if [ "$BLOCK_CHANGED" == "False" ] || [ "${STATUS_SEKAI}" != "active" ] || [ "${
         systemctl2 stop nginx || echo "ERROR: Failed to stop nginx service"
         systemctl2 stop sekaid || echo "ERROR: Failed to stop sekaid service"
 
-        kill $(ps aux | grep '[s]ekaicli' | awk '{print $2}') || echo "ERROR: Failed to kill sekaicli"
         kill $(ps aux | grep '[n]ginx' | awk '{print $2}') || echo "ERROR: Failed to kill nginx"
         kill $(ps aux | grep '[s]ekaid' | awk '{print $2}') || echo "ERROR: Failed to kill sekaid"
 
@@ -91,7 +90,7 @@ if [ "$BLOCK_CHANGED" == "False" ] || [ "${STATUS_SEKAI}" != "active" ] || [ "${
         systemctl2 stop lcd || echo "ERROR: Failed to stop lcd service"
         systemctl2 stop nginx || echo "ERROR: Failed to stop nginx service"
 
-        kill $(ps aux | grep '[s]ekaicli' | awk '{print $2}') || echo "ERROR: Failed to kill sekaicli"
+        kill $(ps aux | grep '[s]ekaid' | awk '{print $2}') || echo "ERROR: Failed to kill sekaid"
         kill $(ps aux | grep '[n]ginx' | awk '{print $2}') || echo "ERROR: Failed to kill nginx"
 
         systemctl2 start lcd || systemctl2 status lcd.service || echo "ERROR: Failed to re-start lcd service" || true

@@ -16,7 +16,6 @@ GENESIS_JSON_PATH=$SEKAID_CONFIG/genesis.json
 CONFIG_TOML_PATH=$SEKAID_CONFIG/config.toml
 INIT_START_FILE=$HOME/init_started
 INIT_END_FILE=$HOME/init_ended
-SEKAICLI_HOME=$HOME/.sekaicli
 SIGNING_KEY_PATH="$SEKAID_CONFIG/priv_validator_key.json"
 
 [ -z "$VALIDATOR_INDEX" ] && VALIDATOR_INDEX=1
@@ -121,9 +120,9 @@ if [ $VALIDATOR_INDEX -eq 1 ] ; then # first validator always creates a genesis 
         $SELF_SCRIPTS/add-account.sh $VALIDATOR_ACC_NAME "validator-keys/$VALIDATOR_ACC_NAME" $KEYRINGPASS $PASSPHRASE
         $SELF_SCRIPTS/export-account.sh $TEST_ACC_NAME $COM_TEST_KEY $KEYRINGPASS $PASSPHRASE
         $SELF_SCRIPTS/export-account.sh $VALIDATOR_ACC_NAME $COM_VALIDATOR_KEY $KEYRINGPASS $PASSPHRASE
-        echo ${KEYRINGPASS} | sekaicli keys list
-        TEST_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaicli keys show "$TEST_ACC_NAME" -a)
-        VALIDATOR_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaicli keys show "$VALIDATOR_ACC_NAME" -a)
+        echo ${KEYRINGPASS} | sekaid keys list
+        TEST_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaid keys show "$TEST_ACC_NAME" -a)
+        VALIDATOR_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaid keys show "$VALIDATOR_ACC_NAME" -a)
         echo "SUCCESS: Accounts $TEST_ACC_ADDR and $VALIDATOR_ACC_ADDR were created"
 
         echo "INFO: Adding genesis accounts..."
@@ -205,7 +204,7 @@ After=network.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/environment
-ExecStart=$SEKAICLI_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAICLI_HOME --node=$NODE_ADDESS 
+ExecStart=$SEKAID_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAID_HOME --node=$NODE_ADDESS 
 Restart=always
 RestartSec=5
 LimitNOFILE=4096
@@ -261,9 +260,9 @@ systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-st
 
 
 echo "INFO: Setting up CLI..."
-sekaicli config trust-node true
-sekaicli config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
-sekaicli config node tcp://localhost:$RPC_LOCAL_PORT
+sekaid config trust-node true
+sekaid config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
+sekaid config node tcp://localhost:$RPC_LOCAL_PORT
 
 
 if [ "$NOTIFICATIONS" == "True" ] ; then
