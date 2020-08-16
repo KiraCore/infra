@@ -258,9 +258,9 @@ systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-st
 
 
 echo "INFO: Setting up CLI..."
-sekaid config trust-node true
-sekaid config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
-sekaid config node tcp://localhost:$RPC_LOCAL_PORT
+# sekaid config trust-node true
+# sekaid config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
+# sekaid config node tcp://localhost:$RPC_LOCAL_PORT
 
 
 if [ "$NOTIFICATIONS" == "True" ] ; then
