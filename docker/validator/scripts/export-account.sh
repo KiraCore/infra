@@ -29,7 +29,7 @@ DIRECTORY=$(dirname $OUTPUT)
 mkdir -p $DIRECTORY
 
 rm -f $OUTPUT
-sekaid keys export $NAME -o text > $OUTPUT 2>&1 << EOF
+sekaid keys export $NAME --output text > $OUTPUT 2>&1 << EOF
 $PASSPHRASE
 $KEYRINGPASS
 EOF

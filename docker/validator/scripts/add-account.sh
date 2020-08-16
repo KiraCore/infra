@@ -38,7 +38,7 @@ echo -e "------------------------------------------------\e[0m"
 if [ -f "$KEY" ] ; then
    echo "INFO: Key $NAME ($KEY) was found and will be imported..."
    #  NOTE: external variables: KEYRINGPASS, PASSPHRASE
-   #  NOTE: Exporting: sekaid keys export validator -o text
+   #  NOTE: Exporting: sekaid keys export validator --output text
    #  NOTE: Deleting: sekaid keys delete validator
    #  NOTE: Importing (first time requires to input keyring password twice):
    sekaid keys import $NAME $KEY << EOF
