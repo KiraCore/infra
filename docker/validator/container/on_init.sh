@@ -30,7 +30,7 @@ SIGNING_KEY_PATH="$SEKAID_CONFIG/priv_validator_key.json"
 
 P2P_LOCAL_PORT=26656
 RPC_LOCAL_PORT=26657
-LCD_LOCAL_PORT=9090
+GRPC_LOCAL_PORT=9090
 RLY_LOCAL_PORT=8000
 
 [ -z "$P2P_PROXY_PORT" ] && P2P_PROXY_PORT="10000"
@@ -187,7 +187,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/usr/local
-ExecStart=$SEKAID_BIN start --pruning=nothing --home=$SEKAID_HOME
+ExecStart=$SEKAID_BIN start --pruning=nothing --home=$SEKAID_HOME --grpc.address=127.0.0.1:$GRPC_LOCAL_PORT --grpc.enable=true
 Restart=always
 RestartSec=5
 LimitNOFILE=4096
@@ -237,7 +237,7 @@ systemctl2 status sekaid.service || true
 systemctl2 status nginx.service || true
 
 ${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $LCD_PROXY_PORT http://127.0.0.1:$LCD_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $LCD_PROXY_PORT http://127.0.0.1:$GRPC_LOCAL_PORT; wait
 ${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
 #${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RLY_PROXY_PORT http://127.0.0.1:$RLY_LOCAL_PORT; wait
 
