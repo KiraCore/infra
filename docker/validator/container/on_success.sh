@@ -20,7 +20,7 @@ if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 echo "Restarting services..."
 systemctl2 restart nginx || systemctl2 status nginx.service || echo "Failed to re-start nginx service" || true
 systemctl2 restart sekaid || systemctl2 status sekaid.service || echo "Failed to re-start sekaid service" && echo "$(cat /etc/systemd/system/sekaid.service)" || true
-systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
+#systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
 #systemctl2 restart faucet || systemctl2 status faucet.service || echo "Failed to re-start faucet service" && echo "$(cat /etc/systemd/system/faucet.service)" || true
 
 

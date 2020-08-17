@@ -30,7 +30,7 @@ SIGNING_KEY_PATH="$SEKAID_CONFIG/priv_validator_key.json"
 
 P2P_LOCAL_PORT=26656
 RPC_LOCAL_PORT=26657
-LCD_LOCAL_PORT=1317
+LCD_LOCAL_PORT=9090
 RLY_LOCAL_PORT=8000
 
 [ -z "$P2P_PROXY_PORT" ] && P2P_PROXY_PORT="10000"
@@ -195,20 +195,20 @@ LimitNOFILE=4096
 WantedBy=multi-user.target
 EOL
 
-cat > /etc/systemd/system/lcd.service << EOL
-[Unit]
-Description=Light Client Daemon Service
-After=network.target
-[Service]
-Type=simple
-EnvironmentFile=/etc/environment
-ExecStart=$SEKAID_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAID_HOME --node=$NODE_ADDESS 
-Restart=always
-RestartSec=5
-LimitNOFILE=4096
-[Install]
-WantedBy=default.target
-EOL
+#cat > /etc/systemd/system/lcd.service << EOL
+#[Unit]
+#Description=Light Client Daemon Service
+#After=network.target
+#[Service]
+#Type=simple
+#EnvironmentFile=/etc/environment
+#ExecStart=$SEKAID_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAID_HOME --node=$NODE_ADDESS 
+#Restart=always
+#RestartSec=5
+#LimitNOFILE=4096
+#[Install]
+#WantedBy=default.target
+#EOL
 
 #cat > /etc/systemd/system/faucet.service << EOL
 #[Unit]
@@ -228,12 +228,12 @@ EOL
 
 #systemctl2 enable faucet.service
 systemctl2 enable sekaid.service
-systemctl2 enable lcd.service
+#systemctl2 enable lcd.service
 systemctl2 enable nginx.service
 
 #systemctl2 status faucet.service || true
 systemctl2 status sekaid.service || true
-systemctl2 status lcd.service || true
+#systemctl2 status lcd.service || true
 systemctl2 status nginx.service || true
 
 ${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
@@ -253,7 +253,7 @@ ${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P
 echo "INFO: Starting services..."
 systemctl2 restart nginx || systemctl2 status nginx.service || echo "Failed to re-start nginx service"
 systemctl2 restart sekaid || systemctl2 status sekaid.service || echo "Failed to re-start sekaid service" && echo "$(cat /etc/systemd/system/sekaid.service)" || true
-systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
+#systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
 #systemctl2 restart faucet || echo "Failed to re-start faucet service" && echo "$(cat /etc/systemd/system/faucet.service)" || true
 
 
