@@ -8,14 +8,14 @@ ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
 VERSION=$(docker -v || echo "Error")
-KIRA_SETUP_DOCKER="$KIRA_SETUP/docker-v0.0.2" 
-if [ ! -f "$KIRA_SETUP_DOCKER" ] || [ "$VERSION" == "Error" ] ; then
+SETUP_CHECK="$KIRA_SETUP/docker-v0.0.2" 
+if [ ! -f "$SETUP_CHECK" ] || [ "$VERSION" == "Error" ] ; then
     echo "INFO: Installing Docker..."
     apt-get update
     apt install docker.io -y
     systemctl enable --now docker
     docker -v
-    touch $KIRA_SETUP_DOCKER
+    touch $SETUP_CHECK
 else
     echo "INFO: Docker $(docker -v) was already installed"
 fi

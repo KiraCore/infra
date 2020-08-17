@@ -7,20 +7,20 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_GO="$KIRA_SETUP/go-v${GO_VERSION}" 
-if [ ! -f "$KIRA_SETUP_GO" ] ; then
+SETUP_CHECK="$KIRA_SETUP/go-v${GO_VERSION}" 
+if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Installing latest go version $GO_VERSION https://golang.org/doc/install ..."
     wget https://dl.google.com/go/go$GO_VERSION.linux-amd64.tar.gz
     tar -C /usr/local -xvf go$GO_VERSION.linux-amd64.tar.gz
     go version
     go env
-    touch $KIRA_SETUP_GO
+    touch $SETUP_CHECK
 else
     echo "INFO: Go $(go version) was already installed"
 fi
 
-KIRA_SETUP_GO_TOOLS="$KIRA_SETUP/go-tools-v3" 
-if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
+SETUP_CHECK="$KIRA_SETUP/go-tools-v3" 
+if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Installing latest go tools..."
     go get -v golang.org/x/tools/cmd/guru
     go get -v golang.org/x/tools/cmd/stringer
@@ -45,7 +45,7 @@ if [ ! -f "$KIRA_SETUP_GO_TOOLS" ] ; then
     /bin/su -c "brew install pre-commit" - $KIRA_USER
     /bin/su -c "brew install golangci/tap/golangci-lint" - $KIRA_USER
     go get -u golang.org/x/lint/golint
-    touch $KIRA_SETUP_GO_TOOLS
+    touch $SETUP_CHECK
 else
     echo "INFO: Go tools were already installed"
 fi

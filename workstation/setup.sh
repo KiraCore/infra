@@ -93,6 +93,7 @@ $KIRA_WORKSTATION/setup/systemctl2.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #1
 $KIRA_WORKSTATION/setup/docker.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #17
 $KIRA_WORKSTATION/setup/gatsby.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #18
 $KIRA_WORKSTATION/setup/golang.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
+$KIRA_WORKSTATION/setup/grpcurl.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #19
 $KIRA_WORKSTATION/setup/nginx.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #20
 $KIRA_WORKSTATION/setup/chrome.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #21
 $KIRA_WORKSTATION/setup/vscode.sh && $KIRA_SCRIPTS/progress-touch.sh "+1" #22
