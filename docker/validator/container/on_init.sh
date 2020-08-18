@@ -37,6 +37,7 @@ RLY_LOCAL_PORT=8000
 [ -z "$RPC_PROXY_PORT" ] && RPC_PROXY_PORT="10001"
 [ -z "$LCD_PROXY_PORT" ] && LCD_PROXY_PORT="10002"
 [ -z "$RLY_PROXY_PORT" ] && RLY_PROXY_PORT="10003"
+[ -z "$GRPC_PROXY_PORT" ] && GRPC_PROXY_PORT="10004"
 
 HOST_IP=$(hostname -i)
 
@@ -236,9 +237,9 @@ systemctl2 status sekaid.service || true
 #systemctl2 status lcd.service || true
 systemctl2 status nginx.service || true
 
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $LCD_PROXY_PORT http://127.0.0.1:$GRPC_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy-grpc.sh $GRPC_PROXY_PORT http://127.0.0.1:$GRPC_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
 #${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RLY_PROXY_PORT http://127.0.0.1:$RLY_LOCAL_PORT; wait
 
 #echo "AWS Account Setup..."
