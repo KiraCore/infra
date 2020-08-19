@@ -104,5 +104,16 @@ echo "INFO: Allow many open files..."
 CDHelper text lineswap --insert="* hard nofile 999999" --prefix="* hard nofile" --path="/etc/security/limits.conf" --append-if-found-not=True
 CDHelper text lineswap --insert="* soft nofile 999999" --prefix="* soft nofile" --path="/etc/security/limits.conf" --append-if-found-not=True
 
+echo "grpcurl install..."
+GRPCURL_VERSION="1.7.0"
+GRPCURL_PATH="${GOPATH}/src/github.com/fullstorydev/grpcurl"
+mkdir -p $GRPCURL_PATH
+cd $GRPCURL_PATH
+wget "https://github.com/fullstorydev/grpcurl/archive/v${GRPCURL_VERSION}.tar.gz"
+tar -zxvf ./v$GRPCURL_VERSION.tar.gz
+cd ./grpcurl-$GRPCURL_VERSION/cmd/grpcurl/
+go build
+ln -s $GRPCURL_PATH/grpcurl-$GRPCURL_VERSION/cmd/grpcurl/grpcurl /bin/grpcurl
+
 printenv
 

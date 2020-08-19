@@ -238,8 +238,8 @@ systemctl2 status sekaid.service || true
 systemctl2 status nginx.service || true
 
 ${SELF_SCRIPTS}/local-cors-proxy.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-grpc.sh $GRPC_PROXY_PORT http://127.0.0.1:$GRPC_LOCAL_PORT; wait
 ${SELF_SCRIPTS}/local-cors-proxy.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy-grpc.sh $GRPC_PROXY_PORT grpc://127.0.0.1:$GRPC_LOCAL_PORT; wait
 #${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RLY_PROXY_PORT http://127.0.0.1:$RLY_LOCAL_PORT; wait
 
 #echo "AWS Account Setup..."

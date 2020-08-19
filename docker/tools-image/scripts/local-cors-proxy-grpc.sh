@@ -27,7 +27,7 @@ if (\$request_method = 'OPTIONS') {
       return 204;
     }
 
-grpc_pass grpc://localhost:$PROXY_PASS;
+grpc_pass $PROXY_PASS;
 
 grpc_set_header X-Real-IP \$remote_addr;
 grpc_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
