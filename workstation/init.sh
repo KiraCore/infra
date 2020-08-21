@@ -35,6 +35,7 @@ NEW_VALIDATORS_COUNT=""
 
 MAX_VALIDATORS=254
 [ -z "$INFRA_BRANCH" ] && INFRA_BRANCH="master"
+[ -z "$KIRA_STOP" ] && KIRA_STOP="False"
 [ -z "$SEKAI_BRANCH" ] && SEKAI_BRANCH="master"
 [ -z "$SDK_BRANCH" ] && SDK_BRANCH="master"
 [ -z "$DOCS_BRANCH" ] && DOCS_BRANCH="master"
@@ -334,8 +335,8 @@ CDHelper text lineswap --insert="IDOF_REPO_SSH=$IDOF_REPO_SSH" --prefix="IDOF_RE
 CDHelper text lineswap --insert="DOCS_REPO_SSH=$DOCS_REPO_SSH" --prefix="DOCS_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="VALIDATORS_COUNT=$VALIDATORS_COUNT" --prefix="VALIDATORS_COUNT=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="MAX_VALIDATORS=$MAX_VALIDATORS" --prefix="MAX_VALIDATORS=" --path=$ETC_PROFILE --append-if-found-not=True
-
-
+CDHelper text lineswap --insert="KIRA_STOP=$KIRA_STOP" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="ETC_PROFILE=$ETC_PROFILE" --prefix="ETC_PROFILE=" --path=$ETC_PROFILE --append-if-found-not=True
 
 
 chmod 777 $ETC_PROFILE

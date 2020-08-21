@@ -173,7 +173,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         gnome-terminal --disable-factory -- script -e $KIRA_DUMP/INFRA/init.log -c "$KIRA_MANAGER/init.sh False ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit" &
         PID=$! && sleep 2 && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish then close the new terminal\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((65+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -183,7 +184,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "s" ] ; then
         echo "INFO: Stopping infrastructure..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=True" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/stop.sh > "$KIRA_DUMP/INFRA/manager/stop.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((2+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -193,7 +195,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "r" ] ; then
         echo "INFO: Re-starting infrastructure..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/restart.sh > "$KIRA_DUMP/INFRA/manager/restart.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((2+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -203,7 +206,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "h" ] ; then
         echo "INFO: Wiping and Restarting infra..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/start.sh > "$KIRA_DUMP/INFRA/manager/start.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((65+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -213,7 +217,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "n" ] ; then
         echo "INFO: Wiping and removing infra..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/delete.sh > "$KIRA_DUMP/INFRA/manager/delete.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((6+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
