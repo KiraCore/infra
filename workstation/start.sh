@@ -42,7 +42,7 @@ fi
 
 source $ETC_PROFILE &> /dev/null
 
-if [ "$KIRA_STOP" == "False" ] ; then
+if [ "$KIRA_STOP" == "True" ] ; then
     echo "INFO: Stopping infra..."
     source $KIRA_MANAGER/stop.sh
     exit 0
