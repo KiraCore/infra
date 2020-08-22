@@ -30,7 +30,6 @@ if (\$request_method = 'OPTIONS') {
 grpc_pass $PROXY_PASS;
 
 grpc_set_header X-Real-IP \$remote_addr;
-grpc_set_header Host \$upstream_host;
 grpc_set_header X-Forwarded-For \$upstream_x_forwarded_for;
 grpc_set_header X-Forwarded-Proto \$upstream_x_forwarded_proto;
 grpc_set_header X-Forwarded-Host \$upstream_x_forwarded_host;
