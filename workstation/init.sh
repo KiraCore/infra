@@ -26,6 +26,9 @@ NEW_DEBUG_MODE=""
 NEW_INFRA_BRANCH=""
 NEW_SEKAI_BRANCH=""
 NEW_SDK_BRANCH=""
+NEW_IDOF_BRANCH=""
+NEW_SAIFU_BRANCH=""
+NEW_KIRAF_BRANCH=""
 NEW_NOTIFICATIONS=""
 NEW_NOTIFY_EMAIL=""
 NEW_SMTP_LOGIN=""
@@ -211,6 +214,15 @@ else
 
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Cosmos-SDK reposiotry branch, [ENTER] if '$SDK_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
     [ ! -z "$NEW_SDK_BRANCH" ] && SDK_BRANCH=$NEW_SDK_BRANCH
+
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType IDO Frontend reposiotry branch, [ENTER] if '$IDOF_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_IDOF_BRANCH" ] && IDOF_BRANCH=$NEW_IDOF_BRANCH
+
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Kira Frontend reposiotry branch, [ENTER] if '$KIRAF_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_KIRAF_BRANCH" ] && KIRAF_BRANCH=$NEW_KIRAF_BRANCH
+    
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Kira Signer reposiotry branch, [ENTER] if '$SAIFU_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_SAIFU_BRANCH" ] && SAIFU_BRANCH=$NEW_SAIFU_BRANCH
     
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mPress [Y]es/[N]o to receive notifications, [ENTER] if '$NOTIFICATIONS': \e[0m\c" && read  -d'' -s -n1 NEW_NOTIFICATIONS
     [ "${NEW_NOTIFICATIONS,,}" == "y" ] && NOTIFICATIONS="True"
