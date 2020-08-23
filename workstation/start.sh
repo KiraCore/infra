@@ -22,6 +22,7 @@ echo "|         INFRA REPO: $INFRA_REPO"
 echo "|         SEKAI REPO: $SEKAI_REPO"
 echo "| NOTIFICATION EMAIL: $EMAIL_NOTIFY"
 echo "|        SKIP UPDATE: $SKIP_UPDATE"
+echo "|          KIRA STOP: $KIRA_STOP"
 echo "|_______________________________________________"
 
 [ -z "$INFRA_BRANCH" ] && echo "ERROR: INFRA_BRANCH env was not defined" && exit 1
@@ -40,6 +41,12 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
 fi
 
 source $ETC_PROFILE &> /dev/null
+
+if [ "$KIRA_STOP" == "True" ] ; then
+    echo "INFO: Stopping infra..."
+    source $KIRA_MANAGER/stop.sh
+    exit 0
+fi
 
 $KIRA_SCRIPTS/container-restart.sh "registry" && $KIRA_SCRIPTS/progress-touch.sh "+1" #25
 for ((i=1;i<=$MAX_VALIDATORS;i++)); do
@@ -104,7 +111,6 @@ for ((i=1;i<=$VALIDATORS_COUNT;i++)); do
      -e EMAIL_NOTIFY="$EMAIL_NOTIFY" \
      -e SMTP_SECRET="$SMTP_SECRET" \
      -e NOTIFICATIONS="$NOTIFICATIONS" \
-     -e DEBUG_MODE="$DEBUG_MODE" \
      -e SILENT_MODE="$SILENT_MODE" \
      -e SEEDS="$SEEDS" \
      -e PEERS="$PEERS" \

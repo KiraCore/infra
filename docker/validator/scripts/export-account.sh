@@ -19,7 +19,7 @@ echo "|   NAME: $NAME"
 echo "| OUTPUT: $OUTPUT"
 echo -e "------------------------------------------------\e[0m"
 
-ACC_ADDR=$(echo ${KEYRINGPASS} | sekaicli keys show "$NAME" -a || echo "Error")
+ACC_ADDR=$(echo ${KEYRINGPASS} | sekaid keys show "$NAME" -a || echo "Error")
 
 if [ "$ACC_ADDR" == "Error" ] ; then
     echo "ERROR: Export failed because account '$NAME' does NOT exists"
@@ -29,7 +29,7 @@ DIRECTORY=$(dirname $OUTPUT)
 mkdir -p $DIRECTORY
 
 rm -f $OUTPUT
-sekaicli keys export $NAME -o text > $OUTPUT 2>&1 << EOF
+sekaid keys export $NAME --output text > $OUTPUT 2>&1 << EOF
 $PASSPHRASE
 $KEYRINGPASS
 EOF

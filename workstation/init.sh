@@ -26,6 +26,9 @@ NEW_DEBUG_MODE=""
 NEW_INFRA_BRANCH=""
 NEW_SEKAI_BRANCH=""
 NEW_SDK_BRANCH=""
+NEW_IDOF_BRANCH=""
+NEW_SAIFU_BRANCH=""
+NEW_KIRAF_BRANCH=""
 NEW_NOTIFICATIONS=""
 NEW_NOTIFY_EMAIL=""
 NEW_SMTP_LOGIN=""
@@ -35,9 +38,13 @@ NEW_VALIDATORS_COUNT=""
 
 MAX_VALIDATORS=254
 [ -z "$INFRA_BRANCH" ] && INFRA_BRANCH="master"
+[ -z "$KIRA_STOP" ] && KIRA_STOP="False"
 [ -z "$SEKAI_BRANCH" ] && SEKAI_BRANCH="master"
 [ -z "$SDK_BRANCH" ] && SDK_BRANCH="master"
 [ -z "$DOCS_BRANCH" ] && DOCS_BRANCH="master"
+[ -z "$SAIFU_BRANCH" ] && SAIFU_BRANCH="master"
+[ -z "$IDOF_BRANCH" ] && IDOF_BRANCH="master"
+[ -z "$KIRAF_BRANCH" ] && KIRAF_BRANCH="master"
 [ -z "$EMAIL_NOTIFY" ] && EMAIL_NOTIFY="noreply.example.email@gmail.com"
 [ -z "$SMTP_LOGIN" ] && SMTP_LOGIN="noreply.example.email@gmail.com"
 [ -z "$SMTP_PASSWORD" ] && SMTP_PASSWORD="wpzpjrfsfznyeohs"
@@ -45,10 +52,14 @@ MAX_VALIDATORS=254
 [ -z "$SEKAI_REPO" ] && SEKAI_REPO="https://github.com/KiraCore/sekai"
 [ -z "$SDK_REPO" ] && SDK_REPO="https://github.com/KiraCore/cosmos-sdk"
 [ -z "$DOCS_REPO" ] && DOCS_REPO="https://github.com/KiraCore/docs"
+[ -z "$SAIFU_REPO" ] && SAIFU_REPO="https://github.com/KiraCore/saifu"
 [ -z "$SEKAI_REPO_SSH" ] && SEKAI_REPO_SSH="git@github.com:KiraCore/sekai.git"
 [ -z "$INFRA_REPO_SSH" ] && INFRA_REPO_SSH="git@github.com:KiraCore/infra.git"
 [ -z "$SDK_REPO_SSH" ] && SDK_REPO_SSH="git@github.com:KiraCore/cosmos-sdk.git"
 [ -z "$DOCS_REPO_SSH" ] && DOCS_REPO_SSH="git@github.com:KiraCore/docs.git"
+[ -z "$IDOF_REPO_SSH" ] && IDOF_REPO_SSH="git@github.com:KiraCore/ido-frontend.git"
+[ -z "$KIRAF_REPO_SSH" ] && KIRAF_REPO_SSH="git@github.com:KiraCore/kira-frontend.git"
+[ -z "$SAIFU_REPO_SSH" ] && SAIFU_REPO_SSH="git@github.com:KiraCore/saifu.git"
 [ -z "$NOTIFICATIONS" ] && NOTIFICATIONS="False"
 [ -z "$VALIDATORS_COUNT" ] && VALIDATORS_COUNT=2
 [ ! -z "$SUDO_USER" ] && KIRA_USER=$SUDO_USER
@@ -70,15 +81,6 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         fi
     fi
     
-    [ "$INTERACTIVE" == "True" ] && if [ "$SKIP_UPDATE" == "False" ] ; then
-        echo -e "\e[36;1mPress [Y]es/[N]o if you want to run in debug mode, [ENTER] if '$DEBUG_MODE': \e[0m\c" && read  -d'' -s -n1 NEW_DEBUG_MODE
-        if [ "${NEW_DEBUG_MODE,,}" == "y" ] ; then
-            DEBUG_MODE="True"
-        elif [ "${NEW_DEBUG_MODE,,}" == "n" ]  ; then
-            DEBUG_MODE="False"
-        fi
-    fi
-    
     # in the non interactive mode always use explicit shell
     [ "$INTERACTIVE" != "True" ] && set -x 
 
@@ -91,6 +93,9 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     KIRA_SEKAI="$KIRA_REPOS/sekai"
     KIRA_SDK="$KIRA_REPOS/sdk"
     KIRA_DOCS="$KIRA_REPOS/docs"
+    KIRA_SAIFU="$KIRA_REPOS/saifu"
+    KIRA_KIRAF="$KIRA_REPOS/kiraf"
+    KIRA_IDOF="$KIRA_REPOS/idof"
     KIRA_SETUP=/kira/setup
     KIRA_MANAGER="/kira/manager"
     KIRA_PROGRESS="/kira/progress"
@@ -103,13 +108,16 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
     mkdir -p $KIRA_SEKAI
     mkdir -p $KIRA_SDK
     mkdir -p $KIRA_DOCS
+    mkdir -p $KIRA_SAIFU
+    mkdir -p $KIRA_KIRAF
+    mkdir -p $KIRA_IDOF
     mkdir -p $KIRA_SETUP
     mkdir -p $KIRA_MANAGER
     mkdir -p $KIRA_PROGRESS
     rm -rfv $KIRA_DUMP
     mkdir -p "$KIRA_DUMP/INFRA/manager"
 
-    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.6" 
+    KIRA_SETUP_ESSSENTIALS="$KIRA_SETUP/essentials-v0.0.8" 
     if [ ! -f "$KIRA_SETUP_ESSSENTIALS" ] ; then
         echo "INFO: Installing Essential Packages and Variables..."
         apt-get update -y > /dev/null
@@ -122,6 +130,7 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         git config --add --global core.autocrlf input || echo "WARNING: Failed to set global autocrlf"
         git config --unset --global core.filemode || echo "WARNING: Failed to unset global filemode"
         git config --add --global core.filemode false || echo "WARNING: Failed to set global filemode"
+        git config --add --global pager.branch false || echo "WARNING: Failed to disable branch pager"
     
         echo "INFO: Base Tools Setup..."
         cd /tmp
@@ -151,6 +160,9 @@ if [ "$SKIP_UPDATE" == "False" ] ; then
         CDHelper text lineswap --insert="KIRA_SEKAI=$KIRA_SEKAI" --prefix="KIRA_SEKAI=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_SDK=$KIRA_SDK" --prefix="KIRA_SDK=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_DOCS=$KIRA_DOCS" --prefix="KIRA_DOCS=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_SAIFU=$KIRA_SAIFU" --prefix="KIRA_SAIFU=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_KIRAF=$KIRA_KIRAF" --prefix="KIRA_KIRAF=" --path=$ETC_PROFILE --append-if-found-not=True
+        CDHelper text lineswap --insert="KIRA_IDOF=$KIRA_IDOF" --prefix="KIRA_IDOF=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_SCRIPTS=$KIRA_SCRIPTS" --prefix="KIRA_SCRIPTS=" --path=$ETC_PROFILE --append-if-found-not=True
         CDHelper text lineswap --insert="KIRA_WORKSTATION=$KIRA_WORKSTATION" --prefix="KIRA_WORKSTATION=" --path=$ETC_PROFILE --append-if-found-not=True
 
@@ -202,6 +214,15 @@ else
 
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Cosmos-SDK reposiotry branch, [ENTER] if '$SDK_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
     [ ! -z "$NEW_SDK_BRANCH" ] && SDK_BRANCH=$NEW_SDK_BRANCH
+
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType IDO Frontend reposiotry branch, [ENTER] if '$IDOF_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_IDOF_BRANCH" ] && IDOF_BRANCH=$NEW_IDOF_BRANCH
+
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Kira Frontend reposiotry branch, [ENTER] if '$KIRAF_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_KIRAF_BRANCH" ] && KIRAF_BRANCH=$NEW_KIRAF_BRANCH
+    
+    [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mType Kira Signer reposiotry branch, [ENTER] if '$SAIFU_BRANCH': \e[0m\c" && read NEW_SDK_BRANCH
+    [ ! -z "$NEW_SAIFU_BRANCH" ] && SAIFU_BRANCH=$NEW_SAIFU_BRANCH
     
     [ "$INTERACTIVE" == "True" ] && echo -e "\e[36;1mPress [Y]es/[N]o to receive notifications, [ENTER] if '$NOTIFICATIONS': \e[0m\c" && read  -d'' -s -n1 NEW_NOTIFICATIONS
     [ "${NEW_NOTIFICATIONS,,}" == "y" ] && NOTIFICATIONS="True"
@@ -310,16 +331,25 @@ CDHelper text lineswap --insert="INFRA_BRANCH=$INFRA_BRANCH" --prefix="INFRA_BRA
 CDHelper text lineswap --insert="SEKAI_BRANCH=$SEKAI_BRANCH" --prefix="SEKAI_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="DOCS_BRANCH=$DOCS_BRANCH" --prefix="DOCS_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_BRANCH=$SDK_BRANCH" --prefix="SDK_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SAIFU_BRANCH=$SAIFU_BRANCH" --prefix="SAIFU_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="KIRAF_BRANCH=$KIRAF_BRANCH" --prefix="KIRAF_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="IDOF_BRANCH=$IDOF_BRANCH" --prefix="IDOF_BRANCH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="INFRA_REPO=$INFRA_REPO" --prefix="INFRA_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SEKAI_REPO=$SEKAI_REPO" --prefix="SEKAI_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_REPO=$SDK_REPO" --prefix="SDK_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="DOCS_REPO=$DOCS_REPO" --prefix="DOCS_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="SAIFU_REPO=$SAIFU_REPO" --prefix="SAIFU_REPO=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SEKAI_REPO_SSH=$SEKAI_REPO_SSH" --prefix="SEKAI_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="INFRA_REPO_SSH=$INFRA_REPO_SSH" --prefix="INFRA_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="SDK_REPO_SSH=$SDK_REPO_SSH" --prefix="SDK_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="KIRAF_REPO_SSH=$KIRAF_REPO_SSH" --prefix="KIRAF_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="IDOF_REPO_SSH=$IDOF_REPO_SSH" --prefix="IDOF_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="DOCS_REPO_SSH=$DOCS_REPO_SSH" --prefix="DOCS_REPO_SSH=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="VALIDATORS_COUNT=$VALIDATORS_COUNT" --prefix="VALIDATORS_COUNT=" --path=$ETC_PROFILE --append-if-found-not=True
 CDHelper text lineswap --insert="MAX_VALIDATORS=$MAX_VALIDATORS" --prefix="MAX_VALIDATORS=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="KIRA_STOP=$KIRA_STOP" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
+CDHelper text lineswap --insert="ETC_PROFILE=$ETC_PROFILE" --prefix="ETC_PROFILE=" --path=$ETC_PROFILE --append-if-found-not=True
+
 
 chmod 777 $ETC_PROFILE
 

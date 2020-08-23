@@ -10,6 +10,8 @@ LOOP_FILE="/tmp/manager_loop"
 VARS_FILE="/tmp/manager_vars"
 RESTART_SIGNAL="/tmp/rs_manager"
 source "/etc/profile" &> /dev/null
+
+DEBUG_MODE=$1
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
 function checkContainerStatus() {
@@ -29,7 +31,7 @@ function checkContainerStatus() {
         
         if [ ! -z "$HEALTH" ] && [ "$HEALTH" != "null" ] ; then
             CONTAINER_STATUS=$HEALTH
-            HEIGHT=$(docker exec -i $name sekaicli status 2>/dev/null | jq -r '.sync_info.latest_block_height' 2>/dev/null | xargs || echo "")
+            HEIGHT=$(docker exec -i $name sekaid status 2>/dev/null | jq -r '.sync_info.latest_block_height' 2>/dev/null | xargs || echo "")
             [ ! -z "$HEIGHT" ] && CONTAINER_STATUS="$CONTAINER_STATUS:$HEIGHT"
         fi
     else
@@ -60,40 +62,43 @@ while : ; do
     source $VARS_FILE
     clear
     
-    echo -e "\e[33;1m------------------------------------------------"
-    echo "|         KIRA NETWORK MANAGER v0.0.5          |"
-    echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
-    [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY       \e[33;1m|"
-    [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY \e[33;1m|"
-    echo "|----------------------------------------------| [status:height]"
+    echo -e "\e[33;1m-------------------------------------------------"
+    echo "|         KIRA NETWORK MANAGER v0.0.6           |"
+    echo "|             $(date '+%d/%m/%Y %H:%M:%S')               |"
+    [ "$SUCCESS" == "True" ] && echo -e "|\e[0m\e[32;1m     SUCCESS, INFRASTRUCTURE IS HEALTHY        \e[33;1m|"
+    [ "$SUCCESS" != "True" ] && echo -e "|\e[0m\e[31;1m ISSUES DETECTED, INFRASTRUCTURE IS UNHEALTHY  \e[33;1m|"
+    echo "|-----------------------------------------------| [status:height]"
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         CONTAINER_ID="CONTAINER_ID_$i" && [ -z "${!CONTAINER_ID}" ] && continue
         CONTAINER_STATUS="CONTAINER_STATUS_$i" && status="${!CONTAINER_STATUS}"
         LABEL="| [$i] | Inspect $name container                 "
-        echo "${LABEL:0:46} : $status"
+        echo "${LABEL:0:47} : $status"
     done
     [ "$CONTAINERS_COUNT" != "0" ] && \
-    echo "|----------------------------------------------|"
-    echo "| [A] | Mange INFRA Git Repository             : $INFRA_BRANCH"
-    echo "| [B] | Mange SEKAI Git Repository             : $SEKAI_BRANCH"
-    echo "| [C] | Mange COSMOS-SDK Git Repository        : $SDK_BRANCH"
-    echo "| [D] | Mange DOCS Git Repository              : $DOCS_BRANCH"
-    echo "|----------------------------------------------|"
-    echo "| [V] | VIEW All Repos in Code Editor          |"
-    echo "| [L] | Show All LOGS in Code Editor           |"
-    echo "|----------------------------------------------|"
+    echo "|-----------------------------------------------|"
+    echo "| [A] | Mange INFRA Git Repository              : $INFRA_BRANCH"
+    echo "| [B] | Mange SEKAI Git Repository              : $SEKAI_BRANCH"
+    echo "| [C] | Mange COSMOS-SDK Git Repository         : $SDK_BRANCH"
+    echo "| [D] | Mange DOCS Git Repository               : $DOCS_BRANCH"
+    echo "| [E] | Mange SAIFU Git Repository              : $SAIFU_BRANCH"
+    echo "| [F] | Mange KIRA-FRONTEND Git Repository      : $KIRAF_BRANCH"
+    echo "| [G] | Mange IDO-FRONTEND Git Repository       : $IDOF_BRANCH"
+    echo "|-----------------------------------------------|"
+    echo "| [V] | VIEW All Repos in Code Editor           |"
+    echo "| [L] | Show All LOGS in Code Editor            |"
+    echo "|-----------------------------------------------|"
     if [ "$CONTAINERS_COUNT" != "0" ] ; then
         [ "$EXITED" == "False" ] && \
-        echo "| [S] | STOP All Containers                    |"
-        echo "| [R] | Re-START All Containers                |"
-        echo "|----------------------------------------------|"
+        echo "| [S] | STOP All Containers                     |"
+        echo "| [R] | Re-START All Containers                 |"
+        echo "|-----------------------------------------------|"
     fi
-    echo "| [I] | Re-INITALIZE Environment               |"
-    echo "| [H] | HARD-Reset Repos & Infrastructure      |"
-    echo "| [N] | NUKE-Delete Repos & Infrastructure     |"
-    echo "|----------------------------------------------|"
-    echo "| [X] | Exit | [W] | Refresh Window            |"
-    echo -e "------------------------------------------------\e[0m"
+    echo "| [I] | Re-INITALIZE Environment                |"
+    echo "| [H] | HARD-Reset Repos & Infrastructure       |"
+    echo "| [N] | NUKE-Delete Repos & Infrastructure      |"
+    echo "|-----------------------------------------------|"
+    echo "| [X] | Exit | [W] | Refresh Window | [Y] Debug |"
+    echo -e "-------------------------------------------------\e[0m"
     
     echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
@@ -110,7 +115,7 @@ while : ; do
 
     i=-1 ; for name in $CONTAINERS ; do i=$((i+1))
         if [ "$OPTION" == "$i" ] ; then
-            gnome-terminal --geometry=80x30 -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh $name ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
+            gnome-terminal --geometry=90x35 -- script -e "$KIRA_DUMP/INFRA/manager/container-$name.log" -c "$KIRA_MANAGER/container-manager.sh \"$name\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit"
             BREAK="True"
             break
         fi 
@@ -140,23 +145,36 @@ while : ; do
         continue
     elif [ "${OPTION,,}" == "a" ] ; then
         echo "INFO: Starting infra git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-infra.log -c "$KIRA_MANAGER/git-manager.sh \"$INFRA_REPO_SSH\" \"$INFRA_REPO\" \"$INFRA_BRANCH\" \"$KIRA_INFRA\" \"INFRA_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "b" ] ; then
         echo "INFO: Starting sekai git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-sekai.log -c "$KIRA_MANAGER/git-manager.sh \"$SEKAI_REPO_SSH\" \"$SEKAI_REPO\" \"$SEKAI_BRANCH\" \"$KIRA_SEKAI\" \"SEKAI_BRANCH\" \"code,goland\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "c" ] ; then
         echo "INFO: Starting sdk git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-sdk.log -c "$KIRA_MANAGER/git-manager.sh \"$SDK_REPO_SSH\" \"$SDK_REPO\" \"$SDK_BRANCH\" \"$KIRA_SDK\" \"SDK_BRANCH\" \"code,goland\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "d" ] ; then
         echo "INFO: Starting docs git manager..."
-        gnome-terminal --geometry=80x30 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\"  ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-docs.log -c "$KIRA_MANAGER/git-manager.sh \"$DOCS_REPO_SSH\" \"$DOCS_REPO\" \"$DOCS_BRANCH\" \"$KIRA_DOCS\" \"DOCS_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "e" ] ; then
+        echo "INFO: Starting saifu git manager..."
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-saifu.log -c "$KIRA_MANAGER/git-manager.sh \"$SAIFU_REPO_SSH\" \"$SAIFU_REPO\" \"$SAIFU_BRANCH\" \"$KIRA_DOCS\" \"SAIFU_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "f" ] ; then
+        echo "INFO: Starting kiraf git manager..."
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-kiraf.log -c "$KIRA_MANAGER/git-manager.sh \"$KIRAF_REPO_SSH\" \"$KIRAF_REPO\" \"$KIRAF_BRANCH\" \"$KIRAF_DOCS\" \"KIRAF_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
+        break
+    elif [ "${OPTION,,}" == "g" ] ; then
+        echo "INFO: Starting idof git manager..."
+        gnome-terminal --geometry=90x35 -- script -e $KIRA_DUMP/INFRA/manager/git-idof.log -c "$KIRA_MANAGER/git-manager.sh \"$IDOF_REPO_SSH\" \"$IDOF_REPO\" \"$IDOF_BRANCH\" \"$KIRA_DOCS\" \"IDOF_BRANCH\" \"code\" \"$DEBUG_MODE\" ; read -d'' -s -n1 -p 'Press any key to exit...' && exit"
         break
     elif [ "${OPTION,,}" == "i" ] ; then
         echo "INFO: Wiping and re-initializing..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         gnome-terminal --disable-factory -- script -e $KIRA_DUMP/INFRA/init.log -c "$KIRA_MANAGER/init.sh False ; read -d'' -s -n1 -p 'Press any key to exit and save logs...' && exit" &
         PID=$! && sleep 2 && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish then close the new terminal\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((65+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -166,7 +184,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "s" ] ; then
         echo "INFO: Stopping infrastructure..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=True" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/stop.sh > "$KIRA_DUMP/INFRA/manager/stop.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((2+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -176,7 +195,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "r" ] ; then
         echo "INFO: Re-starting infrastructure..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/restart.sh > "$KIRA_DUMP/INFRA/manager/restart.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((2+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -186,7 +206,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "h" ] ; then
         echo "INFO: Wiping and Restarting infra..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/start.sh > "$KIRA_DUMP/INFRA/manager/start.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((65+(2*$VALIDATORS_COUNT)));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -196,7 +217,8 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "n" ] ; then
         echo "INFO: Wiping and removing infra..."
-        $KIRA_SCRIPTS/progress-touch.sh "*0" 
+        $KIRA_SCRIPTS/progress-touch.sh "*0"
+        CDHelper text lineswap --insert="KIRA_STOP=False" --prefix="KIRA_STOP=" --path=$ETC_PROFILE --append-if-found-not=True
         $KIRA_MANAGER/delete.sh > "$KIRA_DUMP/INFRA/manager/delete.log" 2>&1 &
         PID=$! && echo -e "\e[33;1mWARNING: You have to wait for process $PID to finish\e[0m"
         $KIRA_SCRIPTS/progress-touch.sh "+0;$((6+$CONTAINERS_COUNT));48;$PID" 2> "$KIRA_DUMP/INFRA/progress.log" || echo -e "\nWARNING: Progress tool failed"
@@ -206,6 +228,10 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break
+    elif [ "${OPTION,,}" == "y" ] ; then
+        echo "INFO: Enabling debug mode..."
+        DEBUG_MODE="True"
+        break
     elif [ "${OPTION,,}" == "x" ] ; then
         exit 0
     fi
@@ -219,5 +245,5 @@ else
 fi
 
 touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 2
-source $KIRA_MANAGER/manager.sh
+source $KIRA_MANAGER/manager.sh "$DEBUG_MODE"
 

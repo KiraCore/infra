@@ -7,8 +7,8 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_VSCODE="$KIRA_SETUP/goland-v0.0.1" 
-if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
+SETUP_CHECK="$KIRA_SETUP/goland-v0.0.1" 
+if [ ! -f "$SETUP_CHECK" ] ; then
     echo "Installing GoLanD..."
     #INSTALL_DIR=/usr/local/bin/goland
     #VERSION=2020.1.3
@@ -21,6 +21,7 @@ if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     #chmod -R -v 777 $INSTALL_DIR
     lsb_release -a ; getconf LONG_BIT ; java -version
     snap install goland --classic
+    touch $SETUP_CHECK
 else
     echo "GoLand was already installed."
 fi

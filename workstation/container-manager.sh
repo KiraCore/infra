@@ -5,10 +5,13 @@ set -e
 
 NAME=$1
 
+
 LOOP_FILE="/tmp/container_manager_loop"
 RESTART_SIGNAL="/tmp/rs_container_manager"
 source "/etc/profile" &> /dev/null
 CONTAINER_DUPM="/home/$KIRA_USER/Desktop/DUMP/${NAME^^}"
+
+DEBUG_MODE=$2
 if [ "$DEBUG_MODE" == "True" ] ; then set -x ; else set +x ; fi
 
 while : ; do
@@ -36,39 +39,39 @@ while : ; do
     
     clear
     
-    echo -e "\e[36;1m------------------------------------------------"
-    echo "|        KIRA CONTAINER MANAGER v0.0.2         |"
-    echo "|             $(date '+%d/%m/%Y %H:%M:%S')              |"
-    echo "|----------------------------------------------|"
+    echo -e "\e[36;1m-------------------------------------------------"
+    echo "|        KIRA CONTAINER MANAGER v0.0.3          |"
+    echo "|             $(date '+%d/%m/%Y %H:%M:%S')               |"
+    echo "|-----------------------------------------------|"
     echo "| Container Name: $NAME ($(echo $ID | head -c 8))"
     echo "|     Ip Address: $IP"
-    echo "|----------------------------------------------|"
+    echo "|-----------------------------------------------|"
     echo "|     Status: $STATUS"
     echo "|     Paused: $PAUSED"
     echo "|     Health: $HEALTH"
     echo "| Restarting: $RESTARTING"
     echo "| Started At: $(echo $STARTED_AT | head -c 19)"
-    echo "|----------------------------------------------|"
+    echo "|-----------------------------------------------|"
     [ "$EXISTS" == "True" ] && 
-    echo "| [I] | Try INSPECT container                  |"
+    echo "| [I] | Try INSPECT container                   |"
     [ "$EXISTS" == "True" ] && 
-    echo "| [L] | View container LOGS                    |"
+    echo "| [L] | View container LOGS                     |"
     [ "$EXISTS" == "True" ] && 
-    echo "| [R] | RESTART container                      |"
+    echo "| [R] | RESTART container                       |"
     [ "$STATUS" == "exited" ] && 
-    echo "| [A] | START container                        |"
+    echo "| [A] | START container                         |"
     [ "$STATUS" == "running" ] && 
-    echo "| [S] | STOP container                         |"
+    echo "| [S] | STOP container                          |"
     [ "$STATUS" == "running" ] && 
-    echo "| [R] | RESTART container                      |"
+    echo "| [R] | RESTART container                       |"
     [ "$STATUS" == "running" ] && 
-    echo "| [P] | PAUSE container                        |"
+    echo "| [P] | PAUSE container                         |"
     [ "$STATUS" == "paused" ] && 
-    echo "| [U] | UNPAUSE container                      |"
+    echo "| [U] | UNPAUSE container                       |"
     [ "$EXISTS" == "True" ] && 
-    echo "|----------------------------------------------|"
-    echo "| [X] | Exit | [W] | Refresh Window            |"
-    echo -e "------------------------------------------------\e[0m"
+    echo "|-----------------------------------------------|"
+    echo "| [X] | Exit | [W] | Refresh Window | [Y] Debug |"
+    echo -e "-------------------------------------------------\e[0m"
     
     echo -en "Input option then press [ENTER] or [SPACE]: " && rm -f $LOOP_FILE && touch $LOOP_FILE && OPTION=""
     while : ; do
@@ -116,6 +119,10 @@ while : ; do
         break
     elif [ "${OPTION,,}" == "w" ] ; then
         echo "INFO: Please wait, refreshing user interface..." && break
+    elif [ "${OPTION,,}" == "y" ] ; then
+        echo "INFO: Enabling debug mode..."
+        DEBUG_MODE="True"
+        break
     elif [ "${OPTION,,}" == "x" ] ; then
         exit 0
     fi
@@ -129,4 +136,4 @@ else
 fi
 
 touch $LOOP_FILE && [ ! -z "$(cat $LOOP_FILE || echo '')" ] && sleep 2
-source $KIRA_MANAGER/container-manager.sh $NAME
+source $KIRA_MANAGER/container-manager.sh "$NAME" "$DEBUG_MODE"

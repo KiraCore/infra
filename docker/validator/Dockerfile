@@ -7,7 +7,6 @@ ARG REPO
 
 ENV SEKAI="${GOPATH}/src/github.com/kiracore/sekai"
 ENV SEKAID_BIN="${GOBIN}/sekaid"
-ENV SEKAICLI_BIN="${GOBIN}/sekaicli"
 ENV COMMON_DIR="/common"
 
 RUN echo "Build hash: ${BUILD_HASH}"

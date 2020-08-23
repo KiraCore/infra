@@ -15,7 +15,10 @@ if [ ! -f "$SETUP_CHECK" ] ; then
     echo "INFO: Intalling Dart..."
     apt-get install dart -y
     echo "INFO: Intalling Android Studio..."
-    snap install --classic android-studio
+    # https://github.com/mfonville/android-studio
+    # https://mfonville.github.io/android-studio/
+    apt-get install android-studio -y
+    apt install default-jdk -y
     snap install androidsdk
     yes | androidsdk "platforms;android-28" "build-tools;28.0.3"
     echo "INFO: Intalling Flutter..."

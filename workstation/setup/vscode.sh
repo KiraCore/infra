@@ -7,7 +7,7 @@ set -e
 ETC_PROFILE="/etc/profile"
 source $ETC_PROFILE &> /dev/null
 
-KIRA_SETUP_VSCODE="$KIRA_SETUP/vscode-v0.0.5" 
+KIRA_SETUP_VSCODE="$KIRA_SETUP/vscode-v0.0.6" 
 if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     echo "Installing Visual Studio Code..."
     mkdir -p /usr/code
@@ -36,6 +36,13 @@ if [ ! -f "$KIRA_SETUP_VSCODE" ] ; then
     code --force --install-extension Dart-Code.dart-code --user-data-dir=/usr/code || echo "WARNING: Failed to install `Dart-Code.dart-code` extentions"
     code --force --install-extension Dart-Code.flutter --user-data-dir=/usr/code || echo "WARNING: Failed to install `Dart-Code.flutter` extentions"
     code --force --install-extension esbenp.prettier-vscode --user-data-dir=/usr/code || echo "WARNING: Faile to install `esbenp.prettier-vscode` extentions"
+    code --force --install-extension usernamehw.errorlens --user-data-dir=/usr/code || echo "WARNING: Faile to install `usernamehw.errorlens` extentions"
+    code --force --install-extension alexisvt.flutter-snippets --user-data-dir=/usr/code || echo "WARNING: Faile to install `alexisvt.flutter-snippets` extentions"
+    code --force --install-extension Nash.awesome-flutter-snippets --user-data-dir=/usr/code || echo "WARNING: Faile to install `Nash.awesome-flutter-snippets` extentions"
+    code --force --install-extension jeroen-meijer.pubspec-assist --user-data-dir=/usr/code || echo "WARNING: Faile to install `jeroen-meijer.pubspec-assist` extentions"
+    code --force --install-extension albert.TabOut --user-data-dir=/usr/code || echo "WARNING: Faile to install `albert.TabOut` extentions"
+    code --force --install-extension Gruntfuggly.todo-tree --user-data-dir=/usr/code || echo "WARNING: Faile to install `Gruntfuggly.todo-tree` extentions"
+    code --force --install-extension CoenraadS.bracket-pair-colorizer-2 --user-data-dir=/usr/code || echo "WARNING: Faile to install `aCoenraadS.bracket-pair-colorizer-2` extentions"
 
     code --list-extensions --user-data-dir=/usr/code
 else

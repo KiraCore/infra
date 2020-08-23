@@ -16,7 +16,6 @@ GENESIS_JSON_PATH=$SEKAID_CONFIG/genesis.json
 CONFIG_TOML_PATH=$SEKAID_CONFIG/config.toml
 INIT_START_FILE=$HOME/init_started
 INIT_END_FILE=$HOME/init_ended
-SEKAICLI_HOME=$HOME/.sekaicli
 SIGNING_KEY_PATH="$SEKAID_CONFIG/priv_validator_key.json"
 
 [ -z "$VALIDATOR_INDEX" ] && VALIDATOR_INDEX=1
@@ -31,13 +30,14 @@ SIGNING_KEY_PATH="$SEKAID_CONFIG/priv_validator_key.json"
 
 P2P_LOCAL_PORT=26656
 RPC_LOCAL_PORT=26657
-LCD_LOCAL_PORT=1317
+GRPC_LOCAL_PORT=9090
 RLY_LOCAL_PORT=8000
 
 [ -z "$P2P_PROXY_PORT" ] && P2P_PROXY_PORT="10000"
 [ -z "$RPC_PROXY_PORT" ] && RPC_PROXY_PORT="10001"
 [ -z "$LCD_PROXY_PORT" ] && LCD_PROXY_PORT="10002"
 [ -z "$RLY_PROXY_PORT" ] && RLY_PROXY_PORT="10003"
+[ -z "$GRPC_PROXY_PORT" ] && GRPC_PROXY_PORT="10004"
 
 HOST_IP=$(hostname -i)
 
@@ -71,7 +71,7 @@ mkdir -p "$COMMON_DIR/signing-keys"
 mkdir -p "$COMMON_DIR/test-keys"
 mkdir -p "$COMMON_DIR/validator-keys"
 
-sekaid init --chain-id $CHAIN_ID "$MONIKER"
+sekaid init --chain-id="$CHAIN_ID" "$MONIKER"
 
 # NOTE: can be supplied from parameter, in such case following instruction can be used: sed -i 's/\\\"/\"/g' $PATH_TO_FILE
 # NOTE: to VALIDATOR_KEY new key delete $SIGNING_KEY_PATH and run sekaid start 
@@ -121,14 +121,14 @@ if [ $VALIDATOR_INDEX -eq 1 ] ; then # first validator always creates a genesis 
         $SELF_SCRIPTS/add-account.sh $VALIDATOR_ACC_NAME "validator-keys/$VALIDATOR_ACC_NAME" $KEYRINGPASS $PASSPHRASE
         $SELF_SCRIPTS/export-account.sh $TEST_ACC_NAME $COM_TEST_KEY $KEYRINGPASS $PASSPHRASE
         $SELF_SCRIPTS/export-account.sh $VALIDATOR_ACC_NAME $COM_VALIDATOR_KEY $KEYRINGPASS $PASSPHRASE
-        echo ${KEYRINGPASS} | sekaicli keys list
-        TEST_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaicli keys show "$TEST_ACC_NAME" -a)
-        VALIDATOR_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaicli keys show "$VALIDATOR_ACC_NAME" -a)
+        echo ${KEYRINGPASS} | sekaid keys list
+        TEST_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaid keys show "$TEST_ACC_NAME" -a)
+        VALIDATOR_ACC_ADDR=$(echo ${KEYRINGPASS} | sekaid keys show "$VALIDATOR_ACC_NAME" -a)
         echo "SUCCESS: Accounts $TEST_ACC_ADDR and $VALIDATOR_ACC_ADDR were created"
 
         echo "INFO: Adding genesis accounts..."
         sekaid add-genesis-account $TEST_ACC_ADDR 100000000000000$DENOM,10000000samoleans,100000000uatom,1000000usent,100000000ubtc
-        sekaid add-genesis-account $VALIDATOR_ACC_ADDR 200000000000000$DENOM
+        sekaid add-genesis-account $VALIDATOR_ACC_ADDR 200000000000000$DENOM,1000000000stake,1000000000validatortoken
 
         echo "INFO: Creating $VALIDATOR_ACC_NAME genesis tx..."
         if [ ! -f "$TMP_NODE_KEY" ] || [ ! -f "$TMP_SIGNING_KEY" ] ; then
@@ -152,15 +152,13 @@ if [ $VALIDATOR_INDEX -eq 1 ] ; then # first validator always creates a genesis 
         echo "INFO: Cons Pub: $TMP_CONSPUB"
         echo "INFO: Address: $TMP_ADDRESS"
         #--node-id "$TMP_NODE_ID" --details "Kira Hub Validator $i"
-        sekaid gentx --trace --name $VALIDATOR_ACC_NAME --amount 90000000000${DENOM} << EOF
+        sekaid gentx-claim $VALIDATOR_ACC_NAME << EOF
 $KEYRINGPASS
 $KEYRINGPASS
 $KEYRINGPASS
 EOF
     done
-    echo "INFO: Collecting gen tx'es..."
-    sekaid collect-gentxs
-
+    
     # original signing key and node-id has to be recovered
     echo "INFO: Key recovery and chain hard reset"
     cat $NODE_KEY > $NODE_KEY_PATH
@@ -190,7 +188,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/usr/local
-ExecStart=$SEKAID_BIN start --pruning=nothing --home=$SEKAID_HOME
+ExecStart=$SEKAID_BIN start --pruning=nothing --home=$SEKAID_HOME --grpc.address=127.0.0.1:$GRPC_LOCAL_PORT --grpc.enable=true
 Restart=always
 RestartSec=5
 LimitNOFILE=4096
@@ -198,20 +196,20 @@ LimitNOFILE=4096
 WantedBy=multi-user.target
 EOL
 
-cat > /etc/systemd/system/lcd.service << EOL
-[Unit]
-Description=Light Client Daemon Service
-After=network.target
-[Service]
-Type=simple
-EnvironmentFile=/etc/environment
-ExecStart=$SEKAICLI_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAICLI_HOME --node=$NODE_ADDESS 
-Restart=always
-RestartSec=5
-LimitNOFILE=4096
-[Install]
-WantedBy=default.target
-EOL
+#cat > /etc/systemd/system/lcd.service << EOL
+#[Unit]
+#Description=Light Client Daemon Service
+#After=network.target
+#[Service]
+#Type=simple
+#EnvironmentFile=/etc/environment
+#ExecStart=$SEKAID_BIN rest-server --chain-id=$CHAIN_ID --home=$SEKAID_HOME --node=$NODE_ADDESS 
+#Restart=always
+#RestartSec=5
+#LimitNOFILE=4096
+#[Install]
+#WantedBy=default.target
+#EOL
 
 #cat > /etc/systemd/system/faucet.service << EOL
 #[Unit]
@@ -231,17 +229,17 @@ EOL
 
 #systemctl2 enable faucet.service
 systemctl2 enable sekaid.service
-systemctl2 enable lcd.service
+#systemctl2 enable lcd.service
 systemctl2 enable nginx.service
 
 #systemctl2 status faucet.service || true
 systemctl2 status sekaid.service || true
-systemctl2 status lcd.service || true
+#systemctl2 status lcd.service || true
 systemctl2 status nginx.service || true
 
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $LCD_PROXY_PORT http://127.0.0.1:$LCD_LOCAL_PORT; wait
-${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy.sh $RPC_PROXY_PORT http://127.0.0.1:$RPC_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P_LOCAL_PORT; wait
+${SELF_SCRIPTS}/local-cors-proxy-grpc.sh $GRPC_PROXY_PORT grpc://127.0.0.1:$GRPC_LOCAL_PORT; wait
 #${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $RLY_PROXY_PORT http://127.0.0.1:$RLY_LOCAL_PORT; wait
 
 #echo "AWS Account Setup..."
@@ -256,14 +254,14 @@ ${SELF_SCRIPTS}/local-cors-proxy-v0.0.1.sh $P2P_PROXY_PORT http://127.0.0.1:$P2P
 echo "INFO: Starting services..."
 systemctl2 restart nginx || systemctl2 status nginx.service || echo "Failed to re-start nginx service"
 systemctl2 restart sekaid || systemctl2 status sekaid.service || echo "Failed to re-start sekaid service" && echo "$(cat /etc/systemd/system/sekaid.service)" || true
-systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
+#systemctl2 restart lcd || systemctl2 status lcd.service || echo "Failed to re-start lcd service" && echo "$(cat /etc/systemd/system/lcd.service)" || true
 #systemctl2 restart faucet || echo "Failed to re-start faucet service" && echo "$(cat /etc/systemd/system/faucet.service)" || true
 
 
 echo "INFO: Setting up CLI..."
-sekaicli config trust-node true
-sekaicli config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
-sekaicli config node tcp://localhost:$RPC_LOCAL_PORT
+# sekaid config trust-node true
+# sekaid config chain-id $(cat $GENESIS_JSON_PATH | jq -r '.chain_id')
+# sekaid config node tcp://localhost:$RPC_LOCAL_PORT
 
 
 if [ "$NOTIFICATIONS" == "True" ] ; then
