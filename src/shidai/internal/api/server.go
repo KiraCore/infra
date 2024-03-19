@@ -2,7 +2,8 @@ package api
 
 import (
 	"net/http"
-	"shidai/internal/commands"
+
+	"github.com/KiraCore/sekin/src/shidai/internal/commands"
 )
 
 func Serve() {

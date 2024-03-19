@@ -1,6 +1,6 @@
 package main
 
-import "shidai/internal/api"
+import "github.com/KiraCore/sekin/src/shidai/internal/api"
 
 func main() {
 	api.Serve()
