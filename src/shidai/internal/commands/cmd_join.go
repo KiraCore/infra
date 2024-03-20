@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	httpexecutor "shidai/utils/httpExecutor"
 	"shidai/utils/mnemonicController"
 	"shidai/utils/osUtils"
 	"strconv"
@@ -136,6 +137,8 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to create secrets folder: %w", err)
 	}
+	// Generate secrets folder in docker container DONE
+	// Writing masterMnemonic to sekai volume DONE
 	MasterMnemonicsSet, err := mnemonicController.GenerateMnemonicsFromMaster(masterMnemonic, secretsFolder)
 	if err != nil {
 		return fmt.Errorf("unable to generate master mnemonic set: %w", err)
@@ -150,8 +153,28 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to set empty validator state : %w", err)
 	}
-	//Writing masterMnemonic to sekai volume
-	// Generate secrets folder in docker container
+
+	// TODO: sekaid keys add validator --recover
+	cmd := httpexecutor.CommandRequest{
+		Command: "keys-add",
+		Args: httpexecutor.SekaidKeysAdd{
+			Address: "validator",
+			Keyring: "test",
+			Home:    sekaidHome,
+			Recover: true,
+		},
+	}
+	//sekaid cointainer name sekin-sekaid_rpc-1
+	sekaidContainerName := "sekin-sekaid_rpc-1"
+	out, err := httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	if err != nil {
+		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+	}
+	log.Println(string(out))
+
+	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
+
+	// TODO: start
 
 	// log.Printf("Handler: %+v\n", j)
 	return nil

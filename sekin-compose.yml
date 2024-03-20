@@ -1,7 +1,10 @@
 ---
 services:
   sekaid_rpc:
-    image: ghcr.io/kiracore/sekin/sekai:v0.3.42
+    # image: ghcr.io/kiracore/sekin/sekai:v0.3.42
+    build:
+      context: ./
+      dockerfile: sekai.Dockerfile
     volumes:
       - ./sekai:/sekai
     ports:

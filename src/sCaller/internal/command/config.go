@@ -14,15 +14,16 @@ type (
 	}
 
 	SekaidKeysAdd struct {
-		Address string `json:"address"`
-		Keyring string `json:"keyring-backend"`
-		Home    string `json:"home"`
-		LogFmt  string `json:"log_format"`
-		LogLvl  string `json:"log_level"`
-		Output  string `json:"output"`
-		Seed    string `json:"seed"`
-		Trace   bool   `json:"trace"`
-		Recover bool   `json:"recover"`
+		Address  string `json:"address"`
+		Keyring  string `json:"keyring-backend"`
+		Home     string `json:"home"`
+		LogFmt   string `json:"log_format"`
+		LogLvl   string `json:"log_level"`
+		Output   string `json:"output"`
+		Seed     string `json:"seed"`
+		Trace    bool   `json:"trace"`
+		Recover  bool   `json:"recover"`
+		Mnemonic string `json:"mnemonic"`
 	}
 
 	SekaiVersion struct {
