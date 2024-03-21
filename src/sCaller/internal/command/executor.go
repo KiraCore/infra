@@ -51,6 +51,7 @@ func SekaiVersionCmd(interface{}) (string, error) {
 	return string(output), err
 }
 
+// Be careful this function overwrites existing key without any confirmation if the name of the mnemonic exist already
 func SekaidKeysAddCmd(args interface{}) (string, error) {
 	log.Printf("DEBUG: SekaidKeysAddCmd: in args: %v", args)
 
@@ -58,25 +59,18 @@ func SekaidKeysAddCmd(args interface{}) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("invalid arguments for 'keys-add'")
 	}
-	// var config *cfg.Config
-	// cfg := cfg.DefaultConfig()
-	// cfg.RootDir = cmdArgs.Home
-	// cfg.Key
-	// nodeId, valPubKey, err := sekaiKeyGen.InitializeNodeValidatorFilesFromMnemonic(cfg, cmdArgs.Mnemonic)
-	// if err != nil {
-	// 	return "", fmt.Errorf("error setting up <%v> key: %w", cmdArgs.Address, err)
-	// }
+
+	if cmdArgs.Address == "" {
+		return "", fmt.Errorf("key name cannot be empty")
+	}
 
 	mnemonic := cmdArgs.Mnemonic
 	if len(mnemonic) == 0 {
 		log.Printf("DEBUG: generating new mnemonic")
-		log.Printf("DEBUG: entropy seed")
 		entropySeed, err := bip39.NewEntropy(256)
 		if err != nil {
 			return "", fmt.Errorf("error generating new entropy seed: %w", err)
 		}
-		log.Printf("DEBUG: entropy seed: %v", string(entropySeed))
-
 		mnemonic, err = bip39.NewMnemonic(entropySeed)
 		if err != nil {
 			return "", fmt.Errorf("error generating new mnemonic: %w", err)
@@ -90,26 +84,28 @@ func SekaidKeysAddCmd(args interface{}) (string, error) {
 		}
 		log.Printf("DEBUG: received mnemonic is valid: %v", mnemonic)
 	}
-	// var kb keyring.Keyring
-	// kb, err := key.NewAccount("myKeyName", "myMnemonic", "", "/path/to/keys", hd.Secp256k1)
-	// if err != nil {
-	// 	// Handle error
-	// }
+
+	var keyringToUse string
+	if cmdArgs.Keyring == "" {
+		keyringToUse = keyring.BackendOS // setting up default value for keyring = "os" check AddKeyringFlags() from sekai
+	} else {
+		keyringToUse = cmdArgs.Keyring
+	}
 
 	registry := types.NewInterfaceRegistry()
 	marshaler := codec.NewProtoCodec(registry)
 	kb, err := keyring.New(
-		"myAppName",         // Keyring name
-		keyring.BackendTest, // Backend type
-		cmdArgs.Home,        // Keys directory path
-		os.Stdin,            // io.Reader for entropy
-		marshaler,           // codec.Codec for encoding/decoding
-		// Add any additional keyring.Option here if needed
+		sdk.KeyringServiceName(), // Keyring name
+		keyringToUse,             // Backend type
+		cmdArgs.Home,             // Keys directory path
+		os.Stdin,                 // io.Reader for entropy
+		marshaler,                // codec.Codec for encoding/decoding
 	)
 	if err != nil {
 		return "", fmt.Errorf("error creating new keyring: %w", err)
 	}
-	//default values from sekai
+	// from cosmosSdk cmd AddKeyCommand() from cosmosSDK/client/keys/add.go
+	// default values from cosmosSDK (same for sekai)
 	coinType := sdk.GetConfig().GetCoinType()
 	var account uint32 = 0
 	var index uint32 = 0
@@ -121,7 +117,6 @@ func SekaidKeysAddCmd(args interface{}) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error creating new signing algorithm: %w", err)
 	}
-	log.Printf("DEBUG: algorithm: %v", algo)
 
 	hdPath := hd.CreateHDPath(coinType, account, index).String()
 	log.Printf("DEBUG: hdPath: %v", hdPath)
@@ -130,30 +125,28 @@ func SekaidKeysAddCmd(args interface{}) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error creating new account: %w", err)
 	}
-	log.Printf("DEBUG: key: %v", k)
-	// cmd := exec.Command(ExecPath, "keys", "add", cmdArgs.Address,
-	// 	"--keyring-backend", cmdArgs.Keyring,
-	// 	"--home", cmdArgs.Home,
-	// 	"--log_format", cmdArgs.LogFmt,
-	// 	"--log_level", cmdArgs.LogLvl,
-	// )
+	address, err := k.GetAddress()
+	log.Printf("DEBUG: address: %v", address.String())
 
-	// if cmdArgs.Output != "" {
-	// 	cmd.Args = append(cmd.Args, "--output", cmdArgs.Output)
-	// }
-	// if cmdArgs.Recover {
-	// 	cmd.Args = append(cmd.Args, "--recover")
-	// }
-	// if cmdArgs.Trace {
-	// 	cmd.Args = append(cmd.Args, "--trace")
-	// }
+	if err != nil {
+		return "", fmt.Errorf("error receiving key address: %w", err)
+	}
 
-	// log.Printf("DEBUG: SekaidKeysAddCmd: cmd args: %v", cmd.Args)
-	// output, err := cmd.CombinedOutput()
-	// log.Println(string(output))
-	// return string(output), err
-	// return fmt.Sprintf("Key added:%s", k), nil
-	return "RETURN SECCUSESFULL", nil
+	// Convert hex string to bytes
+	addrBytes, err := sdk.GetFromBech32(address.String(), "cosmos")
+	if err != nil {
+		log.Printf("ERROR: decoding hex address: %s\n", err)
+		return "", fmt.Errorf("decoding hex address: %w", err)
+	}
+
+	bech32Addr, err := sdk.Bech32ifyAddressBytes("kira", addrBytes)
+	if err != nil {
+		log.Printf("ERROR: converting to Bech32 address: %s\n", err)
+		return "", fmt.Errorf("converting to Bech32 address: %w", err)
+	}
+	log.Printf("DEBUG: key added \npubKey: %v\nKira Address: %v", k.PubKey.GetValue(), bech32Addr)
+
+	return fmt.Sprintf("key was added successfully: Kira Address: %s", bech32Addr), nil
 }
 
 func SekaiAddGenesisAccCmd(args interface{}) (string, error) {
