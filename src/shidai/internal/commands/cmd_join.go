@@ -179,3 +179,8 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	// log.Printf("Handler: %+v\n", j)
 	return nil
 }
+
+func (j *JoinCommandHandler) ApplyNewTomlSetting() error {
+
+	return nil
+}
