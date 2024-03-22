@@ -1,8 +1,11 @@
-package commands
+package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
+
+	"shidai/internal/registry"
 )
 
 type CommandRequest struct {
@@ -17,16 +20,22 @@ func ExecuteCommandHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handler, exists := GetCommandHandler(req.Command)
+	slog.Info("Handle", "command", req.Command, "arguments", req.Args)
+
+	executor, exists := registry.GetCommandExecutor(req.Command)
 	if !exists {
+		slog.Error("Not supported", "command", req.Command)
+
 		http.Error(w, "Command not supported", http.StatusNotFound)
 		return
 	}
 
-	if err := handler.HandleCommand(req.Args); err != nil {
+	if err := executor.Execute( /*config*/ ); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	slog.Info("SUCCESS!", "command", req.Command)
+
+	json.NewEncoder(w).Encode(map[string]string{"status": "success"}) //nolint:errcheck
 }
