@@ -1,10 +1,13 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	tomlEditor "shidai/utils/TomlEditor"
 	httpexecutor "shidai/utils/httpExecutor"
 	"shidai/utils/mnemonicController"
 	"shidai/utils/osUtils"
@@ -171,9 +174,10 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
 	log.Println(string(out))
-
-	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
-
+	err = j.ApplyNewTomlSetting()
+	if err != nil {
+		return fmt.Errorf("unable retrieve join information from <%s>, error: %w", "IP OF THE NODE", err)
+	}
 	// TODO: start
 
 	// log.Printf("Handler: %+v\n", j)
@@ -181,6 +185,18 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 }
 
 func (j *JoinCommandHandler) ApplyNewTomlSetting() error {
-
+	ctx := context.Background()
+	tc := tomlEditor.TargetSeedKiraConfig{
+		IpAddress:     "148.251.69.56",
+		InterxPort:    "11000",
+		SekaidRPCPort: "36657",
+		SekaidP2PPort: "36656",
+	}
+	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
+	info, err := tomlEditor.RetrieveNetworkInformation(ctx, &http.Client{}, &tc)
+	if err != nil {
+		return err
+	}
+	log.Printf("DEBUG: %+v", info)
 	return nil
 }
