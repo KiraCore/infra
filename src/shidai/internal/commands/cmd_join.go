@@ -174,7 +174,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
 	log.Println(string(out))
-	err = j.ApplyNewTomlSetting()
+	err = j.ApplyNewTomlSetting(sekaidHome)
 	if err != nil {
 		return fmt.Errorf("unable retrieve join information from <%s>, error: %w", "IP OF THE NODE", err)
 	}
@@ -184,7 +184,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	return nil
 }
 
-func (j *JoinCommandHandler) ApplyNewTomlSetting() error {
+func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string) error {
 	ctx := context.Background()
 	tc := tomlEditor.TargetSeedKiraConfig{
 		IpAddress:     "148.251.69.56",
@@ -192,11 +192,23 @@ func (j *JoinCommandHandler) ApplyNewTomlSetting() error {
 		SekaidRPCPort: "36657",
 		SekaidP2PPort: "36656",
 	}
+	client := &http.Client{}
 	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
-	info, err := tomlEditor.RetrieveNetworkInformation(ctx, &http.Client{}, &tc)
+	info, err := tomlEditor.RetrieveNetworkInformation(ctx, client, &tc)
 	if err != nil {
 		return err
 	}
-	log.Printf("DEBUG: %+v", info)
+	log.Printf("DEBUG: info: %+v", info)
+
+	standardTomlValues := tomlEditor.GetStandardConfigPack()
+	configFromSeed, err := tomlEditor.GetConfigsBasedOnSeed(ctx, client, info, &tc)
+	if err != nil {
+		return err
+	}
+	updates := append(standardTomlValues, configFromSeed...)
+	tomlEditor.ApplyNewConfig(ctx, updates, "config.toml", sekaidHome)
+
+	log.Printf("DEBUG: standardTomlValues: %+v", standardTomlValues)
+	log.Printf("DEBUG: configFromSeed: %+v", configFromSeed)
 	return nil
 }
