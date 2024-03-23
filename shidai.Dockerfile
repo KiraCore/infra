@@ -1,4 +1,4 @@
-FROM golang:1.21 AS shidai-builder
+FROM golang:1.22 AS shidai-builder
 
 WORKDIR /app
 
