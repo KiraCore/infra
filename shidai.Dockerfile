@@ -4,9 +4,7 @@ WORKDIR /app
 
 COPY ./src/shidai .
 
-RUN go mod init shidai && \
-	go mod tidy && \
-	CGO_ENABLED=0 go build -a -tags netgo -installsuffix cgo -o /shidai ./cmd/main.go
+RUN CGO_ENABLED=0 go build -a -tags netgo -installsuffix cgo -o /shidai ./cmd/main.go
 
 FROM scratch
 
