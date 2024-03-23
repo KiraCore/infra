@@ -2,9 +2,14 @@ FROM golang:1.21 AS shidai-builder
 
 WORKDIR /app
 
+
+ENV CGO_ENABLED=0
+
 COPY ./src/shidai .
 
-RUN CGO_ENABLED=0 go build -a -tags netgo -installsuffix cgo -o /shidai ./cmd/main.go
+RUN go mod download
+
+RUN go build -a -tags netgo -installsuffix cgo -o /shidai ./cmd/main.go
 
 FROM scratch
 
