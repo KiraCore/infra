@@ -107,6 +107,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to clean up sekai and interx homes: %w", err)
 	}
+
 	// ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
 
 	// defer cancelFunc()
@@ -173,6 +174,20 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
+
+	//run version to generate config.toml, app.toml,client.toml files inside sekaid home folder
+	cmd = httpexecutor.CommandRequest{
+		Command: "version",
+		Args: httpexecutor.SekaidKeysAdd{
+
+			Home: sekaidHome,
+		},
+	}
+	out, err = httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	if err != nil {
+		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+	}
+
 	log.Println(string(out))
 	err = j.ApplyNewTomlSetting(sekaidHome)
 	if err != nil {
@@ -206,7 +221,10 @@ func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string) error {
 		return err
 	}
 	updates := append(standardTomlValues, configFromSeed...)
-	tomlEditor.ApplyNewConfig(ctx, updates, "config.toml", sekaidHome)
+	err = tomlEditor.ApplyNewConfig(ctx, updates, "config.toml", sekaidHome)
+	if err != nil {
+		return err
+	}
 
 	log.Printf("DEBUG: standardTomlValues: %+v", standardTomlValues)
 	log.Printf("DEBUG: configFromSeed: %+v", configFromSeed)

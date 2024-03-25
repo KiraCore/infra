@@ -146,7 +146,7 @@ func doGetHttpQuery(ctx context.Context, client *http.Client, url string) ([]byt
 		return nil, err
 	}
 
-	log.Printf(string(body))
+	// log.Printf(string(body))
 
 	return body, nil
 }
@@ -227,7 +227,8 @@ func GetConfigsBasedOnSeed(ctx context.Context, client *http.Client, netInfo *ne
 		configValues = append(configValues, config.TomlValue{Tag: "statesync", Name: "enable", Value: "true"})
 		configValues = append(configValues, config.TomlValue{Tag: "statesync", Name: "temp_dir", Value: "/tmp"})
 	}
-
+	log.Printf("DEBUG: configValues %+v", configValues)
+	// return nil, fmt.Errorf("TestError")
 	return configValues, nil
 }
 
@@ -269,13 +270,13 @@ func getSyncInfo(ctx context.Context, client *http.Client, listOfRPC []string, m
 		trustHashBlock:   "",
 	}
 
+	// TODO: do it in concurrency so don't have to wait each unsuccessful connection to time out individually
 	for _, rpcServer := range listOfRPC {
 		responseBlock, err := getBlockInfo(ctx, client, rpcServer, minHeight)
 		if err != nil {
 			log.Printf("Can't get block information from RPC '%s'", rpcServer)
 			continue
 		}
-
 		if responseBlock.Result.Block.Header.Height != minHeight {
 			log.Printf("RPC (%s) height is '%s', but expected '%s'", rpcServer, responseBlock.Result.Block.Header.Height, minHeight)
 			continue
@@ -298,7 +299,7 @@ func getSyncInfo(ctx context.Context, client *http.Client, listOfRPC []string, m
 		return nil, nil
 	}
 
-	log.Printf("%+v", resultSyncInfo)
+	log.Printf(" %+v", resultSyncInfo)
 	return resultSyncInfo, nil
 }
 
@@ -317,7 +318,8 @@ type ResponseBlock struct {
 
 func getBlockInfo(ctx context.Context, client *http.Client, rpcServer, blockHeight string) (*ResponseBlock, error) {
 	endpointBlock := fmt.Sprintf("block?height=%s", blockHeight)
-
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	defer cancel()
 	url := fmt.Sprintf("http://%s/%s", rpcServer, endpointBlock)
 	body, err := doGetHttpQuery(ctx, client, url)
 	if err != nil {
@@ -343,6 +345,11 @@ func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, filenam
 	// 	return fmt.Errorf("getting '%s' file from sekaid container error: %w", filename, err)
 	// }
 	configFileContent, err := os.ReadFile(configFile)
+	if err != nil {
+		return err
+	}
+	// return fmt.Errorf("TestError")
+	log.Printf("DEBUG: configFileContent Before writing: %v", string(configFileContent))
 	config := string(configFileContent)
 	var newConfig string
 	for _, update := range configsToml {
@@ -363,6 +370,8 @@ func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, filenam
 	// if err != nil {
 	// 	return err
 	// }
+	log.Printf("DEBUG: writing to %v new config: <%v>", configFile, config)
+
 	err = os.WriteFile(configFile, []byte(config), 0777)
 	if err != nil {
 		return err
