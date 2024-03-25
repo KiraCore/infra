@@ -27,6 +27,7 @@ type (
 	}
 
 	SekaiVersion struct {
+		Home string `json:"home"`
 	}
 
 	SekaiAddGenesisAcc struct {

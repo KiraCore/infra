@@ -43,8 +43,17 @@ func SekaiInitCmd(args interface{}) (string, error) {
 	return string(output), err
 }
 
-func SekaiVersionCmd(interface{}) (string, error) {
+func SekaiVersionCmd(args interface{}) (string, error) {
+	cmdArgs, ok := args.(*SekaiVersion)
+	if !ok {
+		return "", fmt.Errorf("invalid arguments for 'version'")
+	}
 	cmd := exec.Command(ExecPath, "version")
+
+	if cmdArgs.Home != "" {
+		cmd.Args = append(cmd.Args, fmt.Sprintf("--home=%v", cmdArgs.Home))
+	}
+
 	log.Printf("DEBUG: SekaiVersionCmd: cmd: %v", cmd)
 	output, err := cmd.CombinedOutput()
 
