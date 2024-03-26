@@ -31,7 +31,7 @@ type CommandRequest struct {
 	Args    interface{} `json:"args"`
 }
 
-func ExecuteCommand(address, port string, commandRequest CommandRequest) ([]byte, error) {
+func ExecutePostCommand(address, port string, commandRequest CommandRequest) ([]byte, error) {
 	check := osUtils.ValidatePort(port)
 	if !check {
 		return nil, fmt.Errorf("<%v> port is not valid", port)

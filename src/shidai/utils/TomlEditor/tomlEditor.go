@@ -82,7 +82,7 @@ func RetrieveNetworkInformation(ctx context.Context, client *http.Client, tc *Ta
 		return nil, fmt.Errorf("getting sekaid public P2P list: %w", err)
 	}
 
-	listOfSeeds, err := parsePubP2PListResponse(ctx, pupP2PListResponse)
+	listOfSeeds, err := parsePubP2PListResponse(pupP2PListResponse)
 	if err != nil {
 		return nil, fmt.Errorf("parsing sekaid public P2P list %w", err)
 	}
@@ -178,7 +178,7 @@ func getPubP2PList(ctx context.Context, client *http.Client, ipAddress, rpcPort 
 	return body, nil
 }
 
-func parsePubP2PListResponse(ctx context.Context, seedsResponse []byte) ([]string, error) {
+func parsePubP2PListResponse(seedsResponse []byte) ([]string, error) {
 
 	if len(seedsResponse) == 0 {
 		log.Printf("WARNING: The list of public seeds is not available")
@@ -190,7 +190,7 @@ func parsePubP2PListResponse(ctx context.Context, seedsResponse []byte) ([]strin
 
 	for _, line := range linesOfPeers {
 		formattedSeed := fmt.Sprintf("tcp://%s", line)
-		log.Printf("Debug: Got seed: %s", formattedSeed)
+		log.Printf("DEBUG: Got seed: %s", formattedSeed)
 		listOfSeeds = append(listOfSeeds, formattedSeed)
 	}
 

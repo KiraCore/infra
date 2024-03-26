@@ -13,19 +13,6 @@ type (
 		Overwrite bool   `json:"overwrite"`
 	}
 
-	SekaidKeysAdd struct {
-		Address  string `json:"address"`
-		Keyring  string `json:"keyring-backend"`
-		Home     string `json:"home"`
-		LogFmt   string `json:"log_format"`
-		LogLvl   string `json:"log_level"`
-		Output   string `json:"output"`
-		Seed     string `json:"seed"`
-		Trace    bool   `json:"trace"`
-		Recover  bool   `json:"recover"`
-		Mnemonic string `json:"mnemonic"`
-	}
-
 	SekaiVersion struct {
 		Home string `json:"home"`
 	}
@@ -66,6 +53,6 @@ var CommandMapping = map[string]struct {
 	"version":             {ArgsStruct: func() interface{} { return &SekaiVersion{} }, Handler: SekaiVersionCmd},
 	"add-genesis-account": {ArgsStruct: func() interface{} { return &SekaiAddGenesisAcc{} }, Handler: SekaiAddGenesisAccCmd},
 	"gentx-claim":         {ArgsStruct: func() interface{} { return &SekaiGentxClaim{} }, Handler: SekaiGentxClaimCmd},
-	"keys-add":            {ArgsStruct: func() interface{} { return &SekaidKeysAdd{} }, Handler: SekaidKeysAddCmd},
-	"start":               {ArgsStruct: func() interface{} { return &SekaidStart{} }, Handler: SekaidStartCmd},
+	// "keys-add":            {ArgsStruct: func() interface{} { return &SekaidKeysAdd{} }, Handler: SekaidKeysAddCmd},
+	"start": {ArgsStruct: func() interface{} { return &SekaidStart{} }, Handler: SekaidStartCmd},
 }

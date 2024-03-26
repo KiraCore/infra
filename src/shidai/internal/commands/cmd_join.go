@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	tomlEditor "shidai/utils/TomlEditor"
+	"shidai/utils/cosmosHelper"
 	httpexecutor "shidai/utils/httpExecutor"
 	joinermanager "shidai/utils/joinerManager"
 	"shidai/utils/mnemonicController"
@@ -119,7 +120,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 			Home: sekaidHome,
 		},
 	}
-	out, err := httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	out, err := httpexecutor.ExecutePostCommand(sekaidContainerName, "8080", cmd)
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
@@ -175,35 +176,14 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		return fmt.Errorf("unable to set sekaid keys: %w", err)
 	}
 	err = mnemonicController.SetEmptyValidatorState(sekaidHome)
-	log.Printf("ValidatorAddrMnemonic: %+v\n", string(MasterMnemonicsSet.ValidatorAddrMnemonic))
 	if err != nil {
 		return fmt.Errorf("unable to set empty validator state : %w", err)
 	}
 
-	// TODO: move KeyAdd functionality to shidai
-	cmd = httpexecutor.CommandRequest{
-		Command: "keys-add",
-		Args: httpexecutor.SekaidKeysAdd{
-			Address: "validator",
-			Keyring: "test",
-			Home:    sekaidHome,
-			Recover: true,
-		},
-	}
-	//sekaid cointainer name sekin-sekaid_rpc-1
-	log.Printf("DEBUG: executing <%v>", cmd)
-	out, err = httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	_, err = cosmosHelper.AddKeyToKeyring("validator", string(MasterMnemonicsSet.ValidatorAddrMnemonic), sekaidHome, "test")
 	if err != nil {
-		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+		return fmt.Errorf("unable to add validator key to keyring: %w", err)
 	}
-	log.Printf("DEBUG: out <%v>", string(out))
-
-	// tc := tomlEditor.TargetSeedKiraConfig{
-	// 	IpAddress:     "148.251.69.56",
-	// 	InterxPort:    "11000",
-	// 	SekaidRPCPort: "36657",
-	// 	SekaidP2PPort: "36656",
-	// }
 	tc := tomlEditor.TargetSeedKiraConfig{
 		IpAddress:     j.IPToJoin,
 		InterxPort:    strconv.Itoa(j.InterxPort),
@@ -221,7 +201,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 			Home: sekaidHome,
 		},
 	}
-	out, err = httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	out, err = httpexecutor.ExecutePostCommand(sekaidContainerName, "8080", cmd)
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
