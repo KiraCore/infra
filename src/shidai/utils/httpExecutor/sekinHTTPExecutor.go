@@ -23,6 +23,9 @@ type SekaidKeysAdd struct {
 	Recover bool   `json:"recover"`
 }
 
+type SekaidStart struct {
+	Home string `json:"home"`
+}
 type CommandRequest struct {
 	Command string      `json:"command"`
 	Args    interface{} `json:"args"`

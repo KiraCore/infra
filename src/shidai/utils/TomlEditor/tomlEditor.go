@@ -232,6 +232,18 @@ func GetConfigsBasedOnSeed(ctx context.Context, client *http.Client, netInfo *ne
 	return configValues, nil
 }
 
+func GetJoinerAppConfig(grpcPort uint) []config.TomlValue {
+	return []config.TomlValue{
+		{Tag: "state-sync", Name: "snapshot-interval", Value: "200"},
+		{Tag: "state-sync", Name: "snapshot-keep-recent", Value: "2"},
+		{Tag: "", Name: "pruning", Value: "custom"},
+		{Tag: "", Name: "pruning-keep-recent", Value: "2"},
+		{Tag: "", Name: "pruning-keep-every", Value: "100"},
+		{Tag: "", Name: "pruning-interval", Value: "10"},
+		{Tag: "grpc", Name: "address", Value: fmt.Sprintf("0.0.0.0:%v", grpcPort)},
+	}
+}
+
 func parseRPCfromSeedsList(seeds []string, tc *TargetSeedKiraConfig) ([]string, error) {
 
 	listOfRPCs := make([]string, 0)
@@ -335,21 +347,13 @@ func getBlockInfo(ctx context.Context, client *http.Client, rpcServer, blockHeig
 	return response, nil
 }
 
-func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, filename, sekaidHome string) error {
+func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, tomlFilePath string) error {
 
-	configDir := fmt.Sprintf("%s/config", sekaidHome)
-	configFile := configDir + "/config.toml"
-	// configFileContent, err := s.containerManager.GetFileFromContainer(ctx, configDir, filename, s.config.SekaidContainerName)
-	// if err != nil {
-	// 	log.Errorf("Can't get '%s' file of sekaid application. Error: %s", filename, err)
-	// 	return fmt.Errorf("getting '%s' file from sekaid container error: %w", filename, err)
-	// }
-	configFileContent, err := os.ReadFile(configFile)
+	configFileContent, err := os.ReadFile(tomlFilePath)
 	if err != nil {
 		return err
 	}
 	// return fmt.Errorf("TestError")
-	log.Printf("DEBUG: configFileContent Before writing: %v", string(configFileContent))
 	config := string(configFileContent)
 	var newConfig string
 	for _, update := range configsToml {
@@ -366,13 +370,8 @@ func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, filenam
 
 		config = newConfig
 	}
-	// err = s.containerManager.WriteFileDataToContainer(ctx, []byte(config), filename, configDir, s.config.SekaidContainerName)
-	// if err != nil {
-	// 	return err
-	// }
-	log.Printf("DEBUG: writing to %v new config: <%v>", configFile, config)
 
-	err = os.WriteFile(configFile, []byte(config), 0777)
+	err = os.WriteFile(tomlFilePath, []byte(config), 0777)
 	if err != nil {
 		return err
 	}

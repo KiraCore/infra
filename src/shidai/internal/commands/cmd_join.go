@@ -9,9 +9,11 @@ import (
 	"os"
 	tomlEditor "shidai/utils/TomlEditor"
 	httpexecutor "shidai/utils/httpExecutor"
+	joinermanager "shidai/utils/joinerManager"
 	"shidai/utils/mnemonicController"
 	"shidai/utils/osUtils"
 	"strconv"
+	"time"
 )
 
 type JoinCommandHandler struct {
@@ -107,15 +109,35 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to clean up sekai and interx homes: %w", err)
 	}
+	sekaidContainerName := "sekin-sekaid_rpc-1"
 
-	// ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
+	// run version to generate config.toml, app.toml,client.toml files inside sekaid home folder
+	cmd := httpexecutor.CommandRequest{
+		Command: "version",
+		Args: httpexecutor.SekaidKeysAdd{
 
-	// defer cancelFunc()
-	// genesis, err := joinermanager.GetVerifiedGenesisFile(ctx, j.IPToJoin, j.RpcPortToJoin, j.InterxPort)
-	// if err != nil {
-	// 	return fmt.Errorf("unable to receive genesis file: %w", err)
-	// }
-	// log.Printf("%v\n", string(genesis))
+			Home: sekaidHome,
+		},
+	}
+	out, err := httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	if err != nil {
+		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+	}
+
+	log.Println(string(out))
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*5)
+
+	defer cancelFunc()
+	genesis, err := joinermanager.GetVerifiedGenesisFile(ctx, j.IPToJoin, j.RpcPortToJoin, j.InterxPort)
+	if err != nil {
+		return fmt.Errorf("unable to receive genesis file: %w", err)
+	}
+	log.Printf("%v\n", string(genesis))
+	err = os.WriteFile(fmt.Sprintf("%v/config/genesis.json", sekaidHome), genesis, 0644)
+	if err != nil {
+		return fmt.Errorf("cant write genesis.json file: %w", err)
+	}
 
 	// TODO: should we generate mnemonic or force user to set Mnemonic
 	// Generate masterMnemonic if current mnemonic is empty
@@ -158,8 +180,8 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		return fmt.Errorf("unable to set empty validator state : %w", err)
 	}
 
-	// TODO: sekaid keys add validator --recover
-	cmd := httpexecutor.CommandRequest{
+	// TODO: move KeyAdd functionality to shidai
+	cmd = httpexecutor.CommandRequest{
 		Command: "keys-add",
 		Args: httpexecutor.SekaidKeysAdd{
 			Address: "validator",
@@ -169,17 +191,33 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		},
 	}
 	//sekaid cointainer name sekin-sekaid_rpc-1
-	sekaidContainerName := "sekin-sekaid_rpc-1"
-	out, err := httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
+	log.Printf("DEBUG: executing <%v>", cmd)
+	out, err = httpexecutor.ExecuteCommand(sekaidContainerName, "8080", cmd)
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
+	log.Printf("DEBUG: out <%v>", string(out))
 
-	//run version to generate config.toml, app.toml,client.toml files inside sekaid home folder
+	// tc := tomlEditor.TargetSeedKiraConfig{
+	// 	IpAddress:     "148.251.69.56",
+	// 	InterxPort:    "11000",
+	// 	SekaidRPCPort: "36657",
+	// 	SekaidP2PPort: "36656",
+	// }
+	tc := tomlEditor.TargetSeedKiraConfig{
+		IpAddress:     j.IPToJoin,
+		InterxPort:    strconv.Itoa(j.InterxPort),
+		SekaidRPCPort: strconv.Itoa(j.RpcPortToJoin),
+		SekaidP2PPort: strconv.Itoa(j.P2PPortToJoin),
+	}
+	err = j.ApplyNewTomlSetting(sekaidHome, &tc)
+	if err != nil {
+		return fmt.Errorf("unable retrieve join information from <%s>, error: %w", "IP OF THE NODE", err)
+	}
+	// TODO: start
 	cmd = httpexecutor.CommandRequest{
-		Command: "version",
-		Args: httpexecutor.SekaidKeysAdd{
-
+		Command: "start",
+		Args: httpexecutor.SekaidStart{
 			Home: sekaidHome,
 		},
 	}
@@ -187,46 +225,41 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
-
 	log.Println(string(out))
-	err = j.ApplyNewTomlSetting(sekaidHome)
-	if err != nil {
-		return fmt.Errorf("unable retrieve join information from <%s>, error: %w", "IP OF THE NODE", err)
-	}
-	// TODO: start
 
-	// log.Printf("Handler: %+v\n", j)
 	return nil
 }
 
-func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string) error {
+func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string, tc *tomlEditor.TargetSeedKiraConfig) error {
 	ctx := context.Background()
-	tc := tomlEditor.TargetSeedKiraConfig{
-		IpAddress:     "148.251.69.56",
-		InterxPort:    "11000",
-		SekaidRPCPort: "36657",
-		SekaidP2PPort: "36656",
-	}
+
 	client := &http.Client{}
 	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
-	info, err := tomlEditor.RetrieveNetworkInformation(ctx, client, &tc)
+	info, err := tomlEditor.RetrieveNetworkInformation(ctx, client, tc)
 	if err != nil {
 		return err
 	}
 	log.Printf("DEBUG: info: %+v", info)
 
 	standardTomlValues := tomlEditor.GetStandardConfigPack()
-	configFromSeed, err := tomlEditor.GetConfigsBasedOnSeed(ctx, client, info, &tc)
+	// Get config for config.toml
+	configFromSeed, err := tomlEditor.GetConfigsBasedOnSeed(ctx, client, info, tc)
 	if err != nil {
 		return err
 	}
 	updates := append(standardTomlValues, configFromSeed...)
-	err = tomlEditor.ApplyNewConfig(ctx, updates, "config.toml", sekaidHome)
+	// apply new config for toml.config
+	err = tomlEditor.ApplyNewConfig(ctx, updates, fmt.Sprintf("%v/config/config.toml", sekaidHome))
 	if err != nil {
 		return err
 	}
 
-	log.Printf("DEBUG: standardTomlValues: %+v", standardTomlValues)
-	log.Printf("DEBUG: configFromSeed: %+v", configFromSeed)
+	err = tomlEditor.ApplyNewConfig(ctx, tomlEditor.GetJoinerAppConfig(9090), fmt.Sprintf("%v/config/app.toml", sekaidHome))
+	if err != nil {
+		return err
+	}
+
+	// log.Printf("DEBUG: standardTomlValues: %+v", standardTomlValues)
+	// log.Printf("DEBUG: configFromSeed: %+v", configFromSeed)
 	return nil
 }
