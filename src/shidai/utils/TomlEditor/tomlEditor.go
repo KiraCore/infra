@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"shidai/utils/config"
+	httpexecutor "shidai/utils/httpExecutor"
 	"strconv"
 	"strings"
 	"time"
@@ -18,9 +18,41 @@ import (
 const endpointPubP2PList string = "api/pub_p2p_list?peers_only=true"
 const endpointStatus string = "status"
 
-func GetStandardConfigPack() []config.TomlValue {
+type networkInfo struct {
+	NetworkName string
+	NodeID      string
+	BlockHeight string
+	Seeds       []string
+}
 
-	cfg := config.DefaultKiraConfig()
+type TargetSeedKiraConfig struct {
+	IpAddress     string
+	InterxPort    string
+	SekaidRPCPort string
+	SekaidP2PPort string
+}
+
+type syncInfo struct {
+	rpcServers       []string
+	trustHeightBlock string
+	trustHashBlock   string
+}
+type ResponseBlock struct {
+	Result struct {
+		BlockID struct {
+			Hash string `json:"hash"`
+		} `json:"block_id"`
+		Block struct {
+			Header struct {
+				Height string `json:"height"`
+			} `json:"header"`
+		} `json:"block"`
+	} `json:"result"`
+}
+
+func GetStandardConfigPack() []config.TomlValue {
+	// TODO: should we remove this func and insert default values directly? Need to sync with new network creator
+	cfg := config.DefaultRyokaiConfig()
 
 	configs := []config.TomlValue{
 		// # CFG [base]
@@ -62,13 +94,6 @@ func GetStandardConfigPack() []config.TomlValue {
 	return configs
 }
 
-type networkInfo struct {
-	NetworkName string
-	NodeID      string
-	BlockHeight string
-	Seeds       []string
-}
-
 func RetrieveNetworkInformation(ctx context.Context, client *http.Client, tc *TargetSeedKiraConfig) (*networkInfo, error) {
 
 	statusResponse, err := getSekaidStatus(ctx, client, tc.IpAddress, tc.SekaidRPCPort)
@@ -103,7 +128,7 @@ func getSekaidStatus(ctx context.Context, client *http.Client, ipAddress, rpcPor
 
 	url := fmt.Sprintf("http://%s:%s/%s", ipAddress, rpcPort, endpointStatus)
 
-	body, err := doGetHttpQuery(ctx, client, url)
+	body, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 	if err != nil {
 		log.Printf("ERROR: Querying error: %s", err)
 		return nil, err
@@ -117,38 +142,6 @@ func getSekaidStatus(ctx context.Context, client *http.Client, ipAddress, rpcPor
 	}
 
 	return response, nil
-}
-
-func doGetHttpQuery(ctx context.Context, client *http.Client, url string) ([]byte, error) {
-
-	const timeoutQuery = time.Second * 60
-
-	ctx, cancel := context.WithTimeout(ctx, timeoutQuery)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		log.Printf("ERROR: Failed to create request: %s", err)
-		return nil, err
-	}
-
-	log.Printf("DEBUG: Querying to '%s'", url)
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Printf("ERROR: Failed to send request: %s", err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("ERROR: Failed to read response body: %s", err)
-		return nil, err
-	}
-
-	// log.Printf(string(body))
-
-	return body, nil
 }
 
 type ResponseSekaidStatus struct {
@@ -166,10 +159,8 @@ type ResponseSekaidStatus struct {
 }
 
 func getPubP2PList(ctx context.Context, client *http.Client, ipAddress, rpcPort string) ([]byte, error) {
-
 	url := fmt.Sprintf("http://%s:%s/%s", ipAddress, rpcPort, endpointPubP2PList)
-
-	body, err := doGetHttpQuery(ctx, client, url)
+	body, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 	if err != nil {
 		log.Printf("ERROR: Querying error: %s", err)
 		return nil, err
@@ -179,7 +170,6 @@ func getPubP2PList(ctx context.Context, client *http.Client, ipAddress, rpcPort 
 }
 
 func parsePubP2PListResponse(seedsResponse []byte) ([]string, error) {
-
 	if len(seedsResponse) == 0 {
 		log.Printf("WARNING: The list of public seeds is not available")
 		return nil, nil
@@ -197,13 +187,8 @@ func parsePubP2PListResponse(seedsResponse []byte) ([]string, error) {
 	return listOfSeeds, nil
 }
 
-type TargetSeedKiraConfig struct {
-	IpAddress     string
-	InterxPort    string
-	SekaidRPCPort string
-	SekaidP2PPort string
-}
-
+// GetConfigsBasedOnSeed generates a slice of configuration values based on the provided network information
+// and joins the seeds, RPC servers, and other relevant parameters into the configuration values.
 func GetConfigsBasedOnSeed(ctx context.Context, client *http.Client, netInfo *networkInfo, tc *TargetSeedKiraConfig) ([]config.TomlValue, error) {
 	configValues := make([]config.TomlValue, 0)
 
@@ -268,12 +253,8 @@ func parseRPCfromSeedsList(seeds []string, tc *TargetSeedKiraConfig) ([]string, 
 	return listOfRPCs, nil
 }
 
-type syncInfo struct {
-	rpcServers       []string
-	trustHeightBlock string
-	trustHashBlock   string
-}
-
+// getSyncInfo retrieves synchronization information based on a list of RPC servers and a minimum block height.
+// It queries each RPC server for block information at the specified height and checks if the retrieved data is consistent.
 func getSyncInfo(ctx context.Context, client *http.Client, listOfRPC []string, minHeight string) (*syncInfo, error) {
 
 	resultSyncInfo := &syncInfo{
@@ -315,25 +296,15 @@ func getSyncInfo(ctx context.Context, client *http.Client, listOfRPC []string, m
 	return resultSyncInfo, nil
 }
 
-type ResponseBlock struct {
-	Result struct {
-		BlockID struct {
-			Hash string `json:"hash"`
-		} `json:"block_id"`
-		Block struct {
-			Header struct {
-				Height string `json:"height"`
-			} `json:"header"`
-		} `json:"block"`
-	} `json:"result"`
-}
-
+// getBlockInfo queries block information from a specified RPC server at a given block height using an HTTP GET request.
+// It constructs the URL based on the provided RPC server URL and the endpointBlock with the specified minHeight parameter.
+// The function then makes an HTTP GET request to retrieve the block information as a ResponseBlock struct.
 func getBlockInfo(ctx context.Context, client *http.Client, rpcServer, blockHeight string) (*ResponseBlock, error) {
 	endpointBlock := fmt.Sprintf("block?height=%s", blockHeight)
 	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
 	url := fmt.Sprintf("http://%s/%s", rpcServer, endpointBlock)
-	body, err := doGetHttpQuery(ctx, client, url)
+	body, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 	if err != nil {
 		return nil, fmt.Errorf("can't reach block response %w", err)
 	}
@@ -347,8 +318,8 @@ func getBlockInfo(ctx context.Context, client *http.Client, rpcServer, blockHeig
 	return response, nil
 }
 
+// applyNewConfig applies a set of configurations to the 'sekaid' application running in the SekaidManager's container.
 func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, tomlFilePath string) error {
-
 	configFileContent, err := os.ReadFile(tomlFilePath)
 	if err != nil {
 		return err
@@ -378,6 +349,12 @@ func ApplyNewConfig(ctx context.Context, configsToml []config.TomlValue, tomlFil
 	return nil
 }
 
+// SetTomlVar updates a specific configuration value in a TOML file represented by the 'config' string.
+// The function takes the 'tag', 'name', and 'value' of the configuration to update and
+// returns the updated 'config' string. It ensures that the provided 'value' is correctly
+// formatted in quotes if necessary and handles the update of configurations within a specific tag or section.
+// The 'tag' parameter allows specifying the configuration section where the 'name' should be updated.
+// If the 'tag' is empty ("") or not found, the function updates configurations in the [base] section.
 func SetTomlVar(config *config.TomlValue, configStr string) (string, error) {
 	tag := strings.TrimSpace(config.Tag)
 	name := strings.TrimSpace(config.Name)
@@ -428,13 +405,13 @@ func SetTomlVar(config *config.TomlValue, configStr string) (string, error) {
 	}
 
 	if IsNullOrWhitespace(value) {
-		log.Printf("WARN: Quotes will be added, value '%s' is empty or a seq. of whitespaces\n", value)
+		log.Printf("WARN: Quotes will be added, value '%s' is empty or a seq. of white spaces\n", value)
 		value = fmt.Sprintf("\"%s\"", value)
 	} else if StrStartsWith(value, "\"") && StrEndsWith(value, "\"") {
 		log.Printf("WARN: Nothing to do, quotes already present in '%q'\n", value)
 	} else if (!StrStartsWith(value, "[")) || (!StrEndsWith(value, "]")) {
 		if IsSubStr(value, " ") {
-			log.Printf("WARN: Quotes will be added, value '%s' contains whitespaces\n", value)
+			log.Printf("WARN: Quotes will be added, value '%s' contains white spaces\n", value)
 			value = fmt.Sprintf("\"%s\"", value)
 		} else if (!IsBoolean(value)) && (!IsNumber(value)) {
 			log.Printf("WARN: Quotes will be added, value '%s' is neither a number nor boolean\n", value)

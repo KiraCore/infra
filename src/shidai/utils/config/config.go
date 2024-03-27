@@ -17,7 +17,7 @@ type (
 	}
 
 	// KiraConfig is a configuration for sekaid or interx manager.
-	KiraConfig struct {
+	RyokaiConfig struct {
 		NetworkName       string        // Name of a blockchain name (chain-ID)
 		SekaidHome        string        // Home folder for sekai bin
 		InterxHome        string        // Home folder for interx bin
@@ -41,8 +41,8 @@ type (
 	}
 )
 
-func DefaultKiraConfig() *KiraConfig {
-	return &KiraConfig{
+func DefaultRyokaiConfig() *RyokaiConfig {
+	return &RyokaiConfig{
 		NetworkName:       "shidaiNet-1",
 		SekaidHome:        "/sekai/sekaid",
 		InterxHome:        "/interx/interxd",

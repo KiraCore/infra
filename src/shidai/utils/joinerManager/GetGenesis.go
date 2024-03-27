@@ -8,12 +8,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
+	httpexecutor "shidai/utils/httpExecutor"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type ResponseChunkedGenesis struct {
@@ -66,7 +65,7 @@ func getSekaidGenesis(ctx context.Context, client *http.Client, ipAddress, sekai
 	for {
 		url := fmt.Sprintf("http://%s:%s/%s", ipAddress, sekaidRPCport, fmt.Sprintf("genesis_chunked?chunk=%d", chunkCount))
 
-		chunkedGenesisResponseBody, err := doGetHttpQuery(ctx, client, url)
+		chunkedGenesisResponseBody, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 		if err != nil {
 			return nil, err
 		}
@@ -103,33 +102,7 @@ func getInterxGenesis(ctx context.Context, client *http.Client, ipAddress, inter
 
 	url := fmt.Sprintf("http://%s:%s/%s", ipAddress, interxPort, "api/genesis")
 
-	body, err := doGetHttpQuery(ctx, client, url)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
-
-func doGetHttpQuery(ctx context.Context, client *http.Client, url string) ([]byte, error) {
-	log.Printf("Querying %v", url)
-	const timeoutQuery = time.Second * 60
-
-	ctx, cancel := context.WithTimeout(ctx, timeoutQuery)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
+	body, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +147,7 @@ func getGenSum(ctx context.Context, client *http.Client, ipAddress, interxPort s
 	const genSumPrefix = "0x"
 	url := fmt.Sprintf("http://%s:%s/%s", ipAddress, interxPort, "api/gensum")
 
-	body, err := doGetHttpQuery(ctx, client, url)
+	body, err := httpexecutor.DoGetHttpQuery(ctx, client, url)
 	if err != nil {
 		return "", err
 	}

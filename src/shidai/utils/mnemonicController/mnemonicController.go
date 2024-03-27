@@ -27,24 +27,6 @@ func GenerateMnemonicsFromMaster(masterMnemonic, pathForKeys string) (*vlg.Maste
 	return &mnemonicSet, nil
 }
 
-// func MnemonicReader() (masterMnemonic string) {
-// 	// log.Infoln("ENTER YOUR MASTER MNEMONIC:")
-
-// 	reader := bufio.NewReader(os.Stdin)
-// 	//nolint:forbidigo // reading user input
-// 	fmt.Println("Enter mnemonic: ")
-
-// 	text, err := reader.ReadString('\n')
-// 	if err != nil {
-// 		// log.Errorf("An error occurred: %s", err)
-// 		return
-// 	}
-// 	mnemonicBytes := []byte(text)
-// 	mnemonicBytes = mnemonicBytes[0 : len(mnemonicBytes)-1]
-// 	masterMnemonic = string(mnemonicBytes)
-// 	return masterMnemonic
-// }
-
 // GenerateMnemonic generates random bip 24 word mnemonic
 func GenerateMnemonic() (masterMnemonic bip39.Mnemonic, err error) {
 	log.Println("generating new mnemonic")

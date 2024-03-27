@@ -113,6 +113,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	sekaidContainerName := "sekin-sekaid_rpc-1"
 
 	// run version to generate config.toml, app.toml,client.toml files inside sekaid home folder
+	// TODO: generate base config files with cosmosSDK
 	cmd := httpexecutor.CommandRequest{
 		Command: "version",
 		Args: httpexecutor.SekaidKeysAdd{
@@ -144,6 +145,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	// Generate masterMnemonic if current mnemonic is empty
 	var masterMnemonic string
 	if j.Mnemonic == "" {
+		// TODO: use cosmosSDK generate function (it more simpler and straightforward (kira1 uses this))
 		bip39m, err := mnemonicController.GenerateMnemonic()
 		if err != nil {
 			return fmt.Errorf("unable to generate masterMnemonic: %w", err)
@@ -164,9 +166,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to create secrets folder: %w", err)
 	}
-	// Generate secrets folder in docker container DONE
-	// Writing masterMnemonic to sekai volume DONE
-	MasterMnemonicsSet, err := mnemonicController.GenerateMnemonicsFromMaster(masterMnemonic, secretsFolder)
+	masterMnemonicsSet, err := mnemonicController.GenerateMnemonicsFromMaster(masterMnemonic, secretsFolder)
 	if err != nil {
 		return fmt.Errorf("unable to generate master mnemonic set: %w", err)
 	}
@@ -180,7 +180,7 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		return fmt.Errorf("unable to set empty validator state : %w", err)
 	}
 
-	_, err = cosmosHelper.AddKeyToKeyring("validator", string(MasterMnemonicsSet.ValidatorAddrMnemonic), sekaidHome, "test")
+	_, err = cosmosHelper.AddKeyToKeyring("validator", string(masterMnemonicsSet.ValidatorAddrMnemonic), sekaidHome, "test")
 	if err != nil {
 		return fmt.Errorf("unable to add validator key to keyring: %w", err)
 	}
@@ -190,31 +190,34 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 		SekaidRPCPort: strconv.Itoa(j.RpcPortToJoin),
 		SekaidP2PPort: strconv.Itoa(j.P2PPortToJoin),
 	}
-	err = j.ApplyNewTomlSetting(sekaidHome, &tc)
+	err = j.ApplyJoinerTomlSettings(sekaidHome, &tc)
 	if err != nil {
 		return fmt.Errorf("unable retrieve join information from <%s>, error: %w", "IP OF THE NODE", err)
 	}
-	// TODO: start
 	cmd = httpexecutor.CommandRequest{
 		Command: "start",
 		Args: httpexecutor.SekaidStart{
 			Home: sekaidHome,
 		},
 	}
+
+	// TODO: rework start in iCaller, it returns error "EOL" when successfully started
 	out, err = httpexecutor.ExecutePostCommand(sekaidContainerName, "8080", cmd)
 	if err != nil {
 		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
 	log.Println(string(out))
 
+	// TODO: add interx init (can be turned off with http request)
+
 	return nil
 }
 
-func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string, tc *tomlEditor.TargetSeedKiraConfig) error {
+// TODO: move this func to another place
+func (j *JoinCommandHandler) ApplyJoinerTomlSettings(sekaidHome string, tc *tomlEditor.TargetSeedKiraConfig) error {
 	ctx := context.Background()
 
 	client := &http.Client{}
-	// TODO: apply new config.toml && app.toml (parse network new nodes if exist)
 	info, err := tomlEditor.RetrieveNetworkInformation(ctx, client, tc)
 	if err != nil {
 		return err
@@ -239,7 +242,5 @@ func (j *JoinCommandHandler) ApplyNewTomlSetting(sekaidHome string, tc *tomlEdit
 		return err
 	}
 
-	// log.Printf("DEBUG: standardTomlValues: %+v", standardTomlValues)
-	// log.Printf("DEBUG: configFromSeed: %+v", configFromSeed)
 	return nil
 }
