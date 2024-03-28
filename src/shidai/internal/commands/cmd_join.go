@@ -110,8 +110,9 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	if err != nil {
 		return fmt.Errorf("unable to clean up sekai and interx homes: %w", err)
 	}
+	// TODO: Retrieve sekaid and interx containers name
 	sekaidContainerName := "sekin-sekaid_rpc-1"
-
+	interxContainerName := "sekin-interxd_rpc-1"
 	// run version to generate config.toml, app.toml,client.toml files inside sekaid home folder
 	// TODO: generate base config files with cosmosSDK
 	cmd := httpexecutor.CommandRequest{
@@ -204,11 +205,54 @@ func (j *JoinCommandHandler) InitJoinerNode(sekaidHome, interxdHome string) erro
 	// TODO: rework start in iCaller, it returns error "EOL" when successfully started
 	out, err = httpexecutor.ExecutePostCommand(sekaidContainerName, "8080", cmd)
 	if err != nil {
-		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+		// return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
 	}
 	log.Println(string(out))
 
 	// TODO: add interx init (can be turned off with http request)
+	p2pPort := strconv.Itoa(j.P2PPortToJoin)
+	rpcPort := strconv.Itoa(j.RpcPortToJoin)
+
+	// Important! Need small delay between sekaid and interx start
+	//(for generating new network needed to wait for first block to be produced)
+	time.Sleep(time.Second)
+	NodeId, err := joinermanager.GetLocalSekaidNodeID(sekaidContainerName, rpcPort)
+	if err != nil {
+		return err
+	}
+	signerMnemonic := string(masterMnemonicsSet.SignerAddrMnemonic)
+	nodeType := "validator"
+	port := strconv.Itoa(j.InterxPort)
+
+	cmd = httpexecutor.CommandRequest{
+		Command: "init",
+		Args: httpexecutor.InterxInit{
+			Home:            &interxdHome,
+			Grpc:            &p2pPort,
+			Rpc:             &rpcPort,
+			NodeType:        &nodeType,
+			FaucetMnemonic:  &signerMnemonic,
+			SigningMnemonic: &signerMnemonic,
+			Port:            &port,
+			ValidatorNodeID: &NodeId,
+		},
+	}
+	out, err = httpexecutor.ExecutePostCommand(interxContainerName, "8081", cmd)
+	if err != nil {
+		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+	}
+	log.Println(string(out))
+	cmd = httpexecutor.CommandRequest{
+		Command: "start",
+		Args: httpexecutor.InterxStart{
+			Home: interxdHome,
+		},
+	}
+	out, err = httpexecutor.ExecutePostCommand(interxContainerName, "8081", cmd)
+	if err != nil {
+		return fmt.Errorf("unable execute <%v> request, error: %w", cmd, err)
+	}
+	log.Println(string(out))
 
 	return nil
 }

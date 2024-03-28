@@ -8,8 +8,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	tomlEditor "shidai/utils/TomlEditor"
 	httpexecutor "shidai/utils/httpExecutor"
 	"strconv"
 	"strings"
@@ -186,4 +188,31 @@ func trimPrefix(s, prefix string) (string, error) {
 	}
 
 	return s[len(prefix):], nil
+}
+
+func GetLocalSekaidNodeID(sekaidNodeAddress, port string) (string, error) {
+
+	var responseStatus tomlEditor.ResponseSekaidStatus
+
+	url := fmt.Sprintf("http://%v:%s/status", sekaidNodeAddress, port)
+	response, err := http.Get(url)
+	if err != nil {
+		log.Printf("Can't reach sekaid RPC status, error: %s", err)
+		return "", err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("Can't read the response body")
+		return "", err
+	}
+
+	err = json.Unmarshal(body, &responseStatus)
+	if err != nil {
+		log.Printf("Can't parse JSON response: %s", err)
+		return "", err
+	}
+
+	return responseStatus.Result.NodeInfo.ID, nil
 }
